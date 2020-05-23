@@ -40,7 +40,7 @@ class App extends Component {
     }
 
     componentDidMount = () => {
-        this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:3500/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
+        this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
 
         document.addEventListener("contextmenu", event => event.preventDefault())
     }
