@@ -16,20 +16,6 @@ import Utils from './Utils';
 
 import Container from 'react-div-100vh';
 
-/*
-TODO:  
-    när mågon redigerar namnet och en annan flyttar den uppdateras det inte för den (om den inte har ändrats något)
-    när någon redigerar namnet på en lista och någon redigerar den samtidigt synkas det inte
-    om någon redigerar namnet till något nytt så sparas det inte, men allt omflyttas men fokuset är
-        fortfarande på den man redigerade från början (och det skriver över det nya förmålet på den platsen)
-    diverse disconnection problem /// LÖST
-    diverse ui problem när man döper om listan /// LÖST
-
-    lösning på desync
-    ---
-        ta bort fokuset när något ändras och spara inte de lokala ändringarna (list nam, föremål namn osv)
-*/
-
 class App extends Component {
     constructor(props) {
         super(props);
@@ -54,7 +40,7 @@ class App extends Component {
     }
 
     componentDidMount = () => {
-        this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080" : "wss://handlingslista.cloudno.de", this);
+        this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:3500/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
 
         document.addEventListener("contextmenu", event => event.preventDefault())
     }
