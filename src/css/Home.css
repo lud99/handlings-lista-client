@@ -1,0 +1,83 @@
+.listTopRow {
+    width: 90%;
+
+    display: flex;
+    justify-content: space-between;
+
+    padding-right: 0;
+}
+.listTopRow .listTopRowRight {
+    flex-wrap: nowrap;
+    display: inline-flex;
+
+    align-items: center;
+    align-content: center;
+}
+.listTopRow .listTopRowRight > div { margin-right: 0.4rem; }
+
+.listTopRow .MuiListItemText-root {
+    flex: unset;
+}
+
+.listBottomRow {
+    width: 75%;
+
+    display: flex;
+    align-items: center;
+    align-content: center;
+}
+
+.list .listMainContainer div span {
+    font-weight: bold;
+
+    text-transform: capitalize;
+
+    flex-direction: column; 
+    width: auto;
+    max-width: 75%;
+}
+
+.listItemsPreview {
+    display: block;
+    height: 1.5rem;
+    width: 100%;
+    margin: 0px;
+    padding-left: 0px;
+    bottom: 0.33rem;
+    align-self: flex-end;
+    font-size: 1rem;
+    white-space: nowrap;
+    list-style-position: inside;
+}
+.listItemsPreview li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.listItemsPreview li span {
+    position: relative;
+}
+
+.listSecondaryContainer {
+    /*display: flex;
+    align-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+
+    height: 100%;*/
+}
+
+.noLists {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: #616161;
+}
+
+.MuiButtonBase-root.addButton {
+    background-color: var(--primary-color);
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+}
+.MuiButtonBase-root.addButton:hover {
+    background-color: #f0b400;
+}

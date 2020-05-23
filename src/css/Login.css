@@ -1,0 +1,81 @@
+body {
+    text-align: center;
+
+    font-size: 1.75rem;
+}
+
+.App {
+    padding: 2rem;
+}
+
+.pin-title {
+    color: #4e4e4e;
+
+    font-size: 3rem;
+    font-weight: normal;
+
+    margin: 0;
+}
+
+.pin {
+    font-size: 3rem;
+
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.pin-description {
+    color: #616161;
+
+    margin-top: 1rem;
+}
+
+#button-container {
+    display: flex;
+    flex-direction: column;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+
+    bottom: 8vh;
+
+    margin: auto;
+}
+
+#button-container .button {
+    margin: 0 auto;
+}
+#button-container .button:last-child { margin-top: 2rem; margin-bottom: 1rem; }
+
+.offlineSnackbarRetry.MuiButton-textSecondary {
+    color: var(--primary-color);
+}
+.offlineSnackbarRetry.MuiButton-textSecondary:hover {
+
+    background-color: rgba(254, 198, 25, 0.03);
+}
+
+/* If the height is less than 667px */
+@media only screen and (max-height: 667px) {
+    .App {
+        padding-top: 1rem;
+    }
+
+    .pin-description {
+        font-size: 1.5rem;
+    }
+
+    #button-container {
+        display: flex;
+        flex-direction: column;
+
+        margin: auto;
+    }
+}
+
+@media only screen and (max-height: 550px) {
+    #button-container {
+        position: initial;
+    }
+}
