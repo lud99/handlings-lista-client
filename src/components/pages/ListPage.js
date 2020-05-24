@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { List as MaterialList, Button } from '@material-ui/core';
 
@@ -146,18 +146,22 @@ const List = (props) => {
 const AddItem = ({ refs, listId, addListItem }) => {
     const [inputValue, setInputValue] = useState("");
 
+    const input = useRef(null);
+
     const addItem = (event) => {
         if (event) event.preventDefault(); // Prevent form submission
 
         if (inputValue !== "") addListItem(listId, inputValue);
 
         setInputValue("");
+
+        input.current.focus();
     }
 
     return (
         <div className="add-item-container" ref={refs.addItemContainer}>
             <form onSubmit={event => addItem(event)}>
-                <Input placeholder="Föremål" value={inputValue} onChange={event => setInputValue(event.target.value)} autoCapitalize="on"/>
+                <Input placeholder="Föremål" value={inputValue} onChange={event => setInputValue(event.target.value)} ref={input} autoCapitalize="on"/>
 
                 <Button variant="contained" className="button button-small" onClick={() => addItem()}>
                     Lägg till

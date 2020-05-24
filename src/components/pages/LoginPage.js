@@ -24,7 +24,7 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
     }
 
     return (
-        <div>
+        <div className="loginContainer">
             <h1 className="pin-title">Kontots PIN</h1>
             <p className="pin">{pin || "Laddar PIN..."}</p>
             <p className="pin-description">

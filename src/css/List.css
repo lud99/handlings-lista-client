@@ -6,7 +6,7 @@
 
     border: none;
     font-size: 1.25rem;
-    line-height: 1rem;
+    line-height: 100%;
     background-color: transparent;
 
     margin-left: 1rem;
@@ -74,7 +74,7 @@ input[type="text"]:focus {
 }
 .add-item-container .button {
     float: right;
-    margin-right: 2rem;
+    margin-right: 1.5rem;
     height: 4rem;
     font-size: 1rem;
 }
@@ -179,9 +179,13 @@ input[type="text"]:focus {
 @media only screen and (max-width: 400px) {
     .add-item-container input {
         width: calc(100% - calc(25% + 96px));
+        font-size: 1.05rem;
     }
     .add-item-container .button {
-        width: 25%;
-        font-size: 0.75rem;
+        width: 30%;
+        font-size: 0.9rem;
     }
+}
+@media only screen and (max-width: 350px) {
+    .add-item-container .button { font-size: 0.75rem; }
 }

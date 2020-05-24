@@ -4,7 +4,7 @@ body {
     font-size: 1.75rem;
 }
 
-.app > div {
+.loginContainer {
     padding: 1rem;
     padding-top: 2rem;
 }
@@ -82,7 +82,7 @@ body {
         position: initial;
     }
 
-    .app > div { padding-top: 1rem; }
+    .loginContainer { padding-top: 1rem; }
 }
 
 @media only screen and (max-width: 768px) {
