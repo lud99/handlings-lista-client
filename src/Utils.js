@@ -20,6 +20,10 @@ class Utils {
         return (/iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream
     }
 
+    isPWA() {
+        return (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');
+    }
+
     isMobile() {
         var check = false;
         

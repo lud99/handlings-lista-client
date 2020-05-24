@@ -69,7 +69,7 @@ const ListPage = (props) => {
 
             <List list={list} editMode={editMode} sortOrder={sortOrder} listStyle={getListStyles()} {...props} />
 
-            <AddItem refs={refs} addListItem={addListItem} />
+            <AddItem refs={refs} listId={list._id} addListItem={addListItem} />
         </>
     );
 }
@@ -134,13 +134,13 @@ const List = (props) => {
     )
 }
 
-const AddItem = ({ refs, addListItem }) => {
+const AddItem = ({ refs, listId, addListItem }) => {
     const [inputValue, setInputValue] = useState("");
 
     const addItem = (event) => {
         if (event) event.preventDefault(); // Prevent form submission
 
-        if (inputValue !== "") addListItem(inputValue);
+        if (inputValue !== "") addListItem(listId, inputValue);
 
         setInputValue("");
     }

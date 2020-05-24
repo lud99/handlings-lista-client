@@ -32,13 +32,12 @@ class App extends Component {
 
         window.Utils = new Utils();
 
-        this.currentList = {};
-
-        this.redirectTo = "";
-
         this.dev = process.env.NODE_ENV !== "production";
 
-        if (window.Utils.isIos()) history.replace(window.localStorage.getItem("url"));
+        const storedUrl = window.localStorage.getItem("url");
+
+        if (storedUrl && (window.Utils.isMobile() || window.Utils.isPWA())) 
+            history.replace(storedUrl);   
     }
 
     componentDidMount = () => {
@@ -49,7 +48,7 @@ class App extends Component {
 
     addList = name => {
         this.socket.send({
-            type: "create-list",
+            type: "create-list", 
             pin: this.state.pin,
             name: name
         });
@@ -78,9 +77,7 @@ class App extends Component {
         });
     }
 
-    addListItem = text => {
-        const listId = this.currentList._id;
-
+    addListItem = (listId, text) => {
         this.socket.send({
             type: "create-list-item",
             pin: this.state.pin,
@@ -194,8 +191,7 @@ class App extends Component {
         this.state = {
             user: null,
             pin: "",
-            lists: [],
-            currentList: {}
+            lists: []
         }
 
         if (updateState) this.setState(this.state);
@@ -209,11 +205,7 @@ class App extends Component {
         });
     }
 
-    openList = listId => {
-        this.currentList = this.state.lists.find(list => list._id === listId);
-
-        history.push("/list/" + listId);
-    }
+    openList = (listId) => history.push(`/list/${listId}`);
 
     retryConnect = () => this.socket.init();
 
@@ -224,45 +216,33 @@ class App extends Component {
                     <OfflineSnackbar isOpen={this.state.isOffline} retryConnect={this.retryConnect}/>
                     <Switch>
                     <Route path="/" exact render={() => {
-                        history.page = "/";
-
                         if (!this.state.isLoggedIn)
                             return <Redirect to="/login" />                        
                     }}>
 
                     </Route>
 
-                    <Route path="/login" exact render={() => {
-                        history.page = "/login";
-
-                        return <LoginPage 
+                    <Route path="/login" exact render={() => (
+                        <LoginPage 
                             pin={this.state.pin} 
                             login={this.login}
                             enterPin={this.enterPin}
                             isOffline={this.state.isOffline} /> 
-                    }} />
-                    <Route path="/home" exact render={() => {
-                        this.currentList = {};
-
-                        history.page = "/home";
-
-                        return <HomePage 
+                    )} />
+                    <Route path="/home" exact render={() => (
+                        <HomePage 
                             lists={this.state.lists} 
                             isLoggedIn={this.isLoggedIn} 
                             shouldLoad={this.state.shouldLoad}
                             {...this} />
-                    }} />
+                    )} />
                     <Route path="/list/:id" exact render={(context) => {
                         const listId = context.match.params.id;
 
-                        this.currentList = this.state.lists ? findList(this.state.lists, listId) : {};
+                        const currentList = this.state.lists ? findList(this.state.lists, listId) : {};
+                        if (!currentList) return <Redirect to="/home" />
 
-                        if (!this.currentList)
-                            return <Redirect to="/home" />
-
-                        history.page = "/list/:id";
-
-                        return <ListPage list={this.currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
+                        return <ListPage list={currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
                     }}>
                     </Route>
                     <Route path="/logout" exact>

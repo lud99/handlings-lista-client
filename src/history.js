@@ -6,7 +6,7 @@ history.url = "/";
 
 history.push_ = history.push;
 
-history.push = (url, state) => {
+history.push = (url, state = {}) => {
     window.localStorage.setItem("url", url);
 
     history.url = url;
