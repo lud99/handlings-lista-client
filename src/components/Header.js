@@ -10,21 +10,45 @@ import Input from './Input';
 import '../css/Header.css';
 import history from '../history';
 
-const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, toggleEditMode, renameList }) => (
-    <AppBar position="static">
-        <Toolbar>
-            <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={history.goBack}>
-                <BackIcon />
-            </IconButton>
-            <Title title={title} editMode={editButtonState} renameList={renameList} useRenameList={useRenameList} listId={listId} />
+const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, toggleEditMode, renameList }) => {
+    const pageUrlLayout = [
+        "/login",
+        "/home",
+        "/list/:id"
+    ]
 
-            { useEditButton && 
-            <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editButtonState)} onClick={toggleEditMode}>
-                <EditIcon />
-            </IconButton> }
-        </Toolbar>
-    </AppBar>
-)
+    const back = () => {
+        var url = window.location.pathname;
+
+        if (url.includes("/list")) {
+            const listId = url.match(/(\/list\/)+([a-z0-9]+)/)[2];
+
+            url = url.replace(listId, ":id");    
+        }
+
+        const index = pageUrlLayout.indexOf(url);
+
+        const previousUrl = pageUrlLayout[index - 1];
+
+        history.push(previousUrl)
+    }
+
+    return (
+        <AppBar position="static">
+            <Toolbar>
+                <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
+                    <BackIcon />
+                </IconButton>
+                <Title title={title} editMode={editButtonState} renameList={renameList} useRenameList={useRenameList} listId={listId} />
+
+                { useEditButton && 
+                <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editButtonState)} onClick={toggleEditMode}>
+                    <EditIcon />
+                </IconButton> }
+            </Toolbar>
+        </AppBar>
+    )
+}
 
 Header.defaultProps = {
     useRenameList: false,

@@ -37,6 +37,8 @@ class App extends Component {
         this.redirectTo = "";
 
         this.dev = process.env.NODE_ENV !== "production";
+
+        if (window.Utils.isIos()) history.replace(window.localStorage.getItem("url"));
     }
 
     componentDidMount = () => {
@@ -215,60 +217,62 @@ class App extends Component {
 
     retryConnect = () => this.socket.init();
 
-    render = () => (
-        <Router history={history}>
-            <Container className="app">
-                <OfflineSnackbar isOpen={this.state.isOffline} retryConnect={this.retryConnect}/>
-                <Switch>
-                <Route path="/" exact render={() => {
-                    history.page = "/";
+    render = () => {
+        return (
+            <Router history={history}>
+                <Container className="app">
+                    <OfflineSnackbar isOpen={this.state.isOffline} retryConnect={this.retryConnect}/>
+                    <Switch>
+                    <Route path="/" exact render={() => {
+                        history.page = "/";
 
-                    if (!this.state.isLoggedIn)
-                        return <Redirect to="/login" />                        
-                }}>
+                        if (!this.state.isLoggedIn)
+                            return <Redirect to="/login" />                        
+                    }}>
 
-                </Route>
+                    </Route>
 
-                <Route path="/login" exact render={() => {
-                    history.page = "/login";
+                    <Route path="/login" exact render={() => {
+                        history.page = "/login";
 
-                    return <LoginPage 
-                        pin={this.state.pin} 
-                        login={this.login}
-                        enterPin={this.enterPin}
-                        isOffline={this.state.isOffline} /> 
-                }} />
-                <Route path="/home" exact render={() => {
-                    this.currentList = {};
+                        return <LoginPage 
+                            pin={this.state.pin} 
+                            login={this.login}
+                            enterPin={this.enterPin}
+                            isOffline={this.state.isOffline} /> 
+                    }} />
+                    <Route path="/home" exact render={() => {
+                        this.currentList = {};
 
-                    history.page = "/home";
+                        history.page = "/home";
 
-                    return <HomePage 
-                        lists={this.state.lists} 
-                        isLoggedIn={this.isLoggedIn} 
-                        shouldLoad={this.state.shouldLoad}
-                        {...this} />
-                }} />
-                <Route path="/list/:id" exact render={(context) => {
-                    const listId = context.match.params.id;
+                        return <HomePage 
+                            lists={this.state.lists} 
+                            isLoggedIn={this.isLoggedIn} 
+                            shouldLoad={this.state.shouldLoad}
+                            {...this} />
+                    }} />
+                    <Route path="/list/:id" exact render={(context) => {
+                        const listId = context.match.params.id;
 
-                    this.currentList = this.state.lists ? findList(this.state.lists, listId) : {};
+                        this.currentList = this.state.lists ? findList(this.state.lists, listId) : {};
 
-                    if (!this.currentList)
-                        return <Redirect to="/home" />
+                        if (!this.currentList)
+                            return <Redirect to="/home" />
 
-                    history.page = "/list/:id";
+                        history.page = "/list/:id";
 
-                    return <ListPage list={this.currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
-                }}>
-                </Route>
-                <Route path="/logout" exact>
-                    <Logout logout={this.logout} />
-                </Route>
-            </Switch>
-            </Container>
-        </Router>
-    );
+                        return <ListPage list={this.currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
+                    }}>
+                    </Route>
+                    <Route path="/logout" exact>
+                        <Logout logout={this.logout} />
+                    </Route>
+                </Switch>
+                </Container>
+            </Router>
+        );
+    }
 }
 
 const Logout = ({ logout }) => {

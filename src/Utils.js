@@ -12,7 +12,7 @@ class Utils {
         return result;
     }
 
-    createPIN(length = 6) {
+    createPIN() {
         return this.createId(6, "1234567890");
     }
 

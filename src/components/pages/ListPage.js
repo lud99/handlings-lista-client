@@ -101,7 +101,7 @@ const List = (props) => {
         <>
             { resetDrag ? 
             
-            <>b</> : 
+            <></> : 
             
             editMode ?
 

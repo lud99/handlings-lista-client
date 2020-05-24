@@ -54,6 +54,8 @@ input:focus {
 
     position: relative;
 
+    background: none;
+
     -webkit-overflow-scrolling: touch;
 }
 

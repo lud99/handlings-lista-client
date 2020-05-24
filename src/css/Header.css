@@ -10,6 +10,7 @@ header.MuiAppBar-root {
 }
 header > div.MuiToolbar-root {
     padding-right: 0.5rem;
+    min-height: 56px !important;
 }
 
 header .backButton.MuiIconButton-root {
