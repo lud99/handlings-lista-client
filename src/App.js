@@ -38,10 +38,12 @@ class App extends Component {
 
         if (storedUrl && (window.Utils.isMobile() || window.Utils.isPWA())) 
             history.replace(storedUrl);   
+
+            this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
     }
 
     componentDidMount = () => {
-        this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
+        
 
         document.addEventListener("contextmenu", event => event.preventDefault())
     }
@@ -219,7 +221,6 @@ class App extends Component {
                         if (!this.state.isLoggedIn)
                             return <Redirect to="/login" />                        
                     }}>
-
                     </Route>
 
                     <Route path="/login" exact render={() => (
@@ -229,6 +230,15 @@ class App extends Component {
                             enterPin={this.enterPin}
                             isOffline={this.state.isOffline} /> 
                     )} />
+
+                    <Route path="/login/:pin" exact render={(context) => {
+                        const pin = context.match.params.pin;
+
+                        this.enterPin(pin);
+
+                        return <></>;
+                    }} />
+
                     <Route path="/home" exact render={() => (
                         <HomePage 
                             lists={this.state.lists} 
@@ -236,6 +246,7 @@ class App extends Component {
                             shouldLoad={this.state.shouldLoad}
                             {...this} />
                     )} />
+                    
                     <Route path="/list/:id" exact render={(context) => {
                         const listId = context.match.params.id;
 
@@ -245,6 +256,7 @@ class App extends Component {
                         return <ListPage list={currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
                     }}>
                     </Route>
+
                     <Route path="/logout" exact>
                         <Logout logout={this.logout} />
                     </Route>

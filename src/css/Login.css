@@ -27,7 +27,13 @@ body {
 .pin-description {
     color: #616161;
 
-    margin-top: 1rem;
+    width: 50%;
+    text-align: center;
+
+    margin: auto;
+
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
 
 #button-container {
@@ -37,7 +43,7 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-
+    
     bottom: 8vh;
 
     margin: auto;
@@ -58,10 +64,6 @@ body {
 
 /* If the height is less than 667px */
 @media only screen and (max-height: 667px) {
-    .App {
-        padding-top: 1rem;
-    }
-
     .pin-description {
         font-size: 1.5rem;
     }
@@ -77,5 +79,11 @@ body {
 @media only screen and (max-height: 550px) {
     #button-container {
         position: initial;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .pin-description {
+        width: 85%;
     }
 }

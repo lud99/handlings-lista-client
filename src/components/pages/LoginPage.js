@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { Link } from "react-router-dom";
 
@@ -15,41 +15,6 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
         if (pin) enterPin(pin);
     }
 
-    useEffect(() => {
-        // Don't make the body fixed (causes problems with scrolling)
-        document.body.style.position = "";
-        
-        // Disable scrolling on ios
-        window.Utils.addResizeListener(async () => {
-            const buttonContainer = document.getElementById("button-container");
-
-            if (!buttonContainer) return;
-
-            const app = document.querySelector(".app");
-
-            // Reset styles that rely on the scroll for an accurate result
-            app.style.paddingBottom = "";
-            buttonContainer.style.marginBottom = "";
-
-            // Should enable scroll
-            if (await window.Utils.shouldScroll()) {
-                document.body.style.position = "relative";
-                document.body.style.overflow = "auto";
-
-                app.style.height = "auto";
-                app.style.paddingBottom = "1rem";
-
-                buttonContainer.style.marginBottom = "2rem";
-            } else { // Should disable scroll
-                document.body.style.position = "fixed";
-
-                app.style.paddingBottom = "";
-
-                buttonContainer.style.marginBottom = 0;
-            }
-        });
-    }, []);
-
     const loginClick = (event) => {
         event.preventDefault();
         
@@ -59,12 +24,12 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
     }
 
     return (
-        <div className="container" style={styles.container}>
+        <div style={styles.container}>
             <h1 className="pin-title">Kontots PIN</h1>
             <p className="pin">{pin || "Laddar PIN..."}</p>
             <p className="pin-description">
-                Denna PIN är unik till ditt konto. <br /> 
-                Använd den på andra enheter för att länka samman dem
+                Denna PIN är unik till ditt konto. <br />
+                Skriv in den på dina andra enheter för att länka samman dem
             </p>
 
             <div id="button-container">
@@ -91,7 +56,8 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
 
 const styles = {
     container: {
-        padding: "1rem"
+        padding: "1rem",
+        paddingTop: "2rem"
     }
 }
 
