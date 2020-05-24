@@ -13,7 +13,7 @@ const Delete = ({ style, onClick, enabled }) => {
 
     return (
         <>
-            { enabled && <IconButton edge="end" className="listItemDelete" color="inherit" aria-label="delete" style={style} onClick={(event) => click(event)}>
+            { enabled && <IconButton edge="end" className="listItemDelete" color="inherit" aria-label="delete" style={style} onClick={click}>
                 <DeleteIcon />
             </IconButton> }     
         </>

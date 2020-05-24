@@ -75,7 +75,7 @@ const ListPage = (props) => {
 }
 
 const List = (props) => {
-    const { list, reorderListItems, editMode, sortOrder, resetDrag, listStyle } = props;
+    const { list, reorderListItems, editMode, sortOrder, resetDrag, listStyle, addListItem } = props;
 
     // Reorder moved items
     const reorder = (list, startIndex, endIndex) => {
@@ -97,6 +97,15 @@ const List = (props) => {
         reorderListItems(list._id, result.source.index, result.destination.index, reorderedItems, sortOrder);
     }
 
+    /*const newListItem = {
+        completed: false,
+        listId: list && list._id, 
+        text: "",
+        hideDeleteIcon: true,
+        addListItem: addListItem,
+        isAddItem: true
+    }*/
+
     return (
         <>
             { resetDrag ? 
@@ -106,8 +115,8 @@ const List = (props) => {
             editMode ?
 
             // Static list
-            <MaterialList className="list" component="div" style={listStyle}>
-                { list.items !==null && list.items.map((item, index) => (
+            list.items !== null && <MaterialList className="list" component="div" style={listStyle}>
+                { list.items.map((item, index) => (
                     <ListItem {...item} {...props} key={index}/>
                 ))}
             </MaterialList> :  

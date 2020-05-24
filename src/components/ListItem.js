@@ -9,7 +9,7 @@ import Input from './Input';
 import Delete from './Delete';
 
 const Item = (props) => {
-    const { _id, listId, text, completed, snapshot, provided, toggleListItemCompleted, removeListItem } = props;
+    const { _id, listId, text, completed, snapshot, provided, toggleListItemCompleted, removeListItem, hideDeleteIcon } = props;
 
     const editIconElement = useRef(null);
     const nameInput = useRef(null);
@@ -46,8 +46,8 @@ const Item = (props) => {
                 <ListItem button style={styles.item(false, completed, isEditMode)}>
                     <Text {...props} ref={nameInput} editIconElement={editIconElement}/>
                     <div style={{ whiteSpace: "nowrap" }}>
-                        <ItemEdit text={text} ref={editIconElement} onClick={() => focusOnText()} /> 
-                        <Delete onClick={() => removeListItem(listId, _id)} {...props} />
+                        <ItemEdit text={text} ref={editIconElement} onClick={focusOnText} /> 
+                        <Delete onClick={() => removeListItem(listId, _id)} style={styles.deleteIcon(hideDeleteIcon)} {...props} />
                     </div>
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
@@ -55,6 +55,10 @@ const Item = (props) => {
         );  
     }
 };
+
+Item.defaultProps = {
+    hideDeleteIcon: false
+}
 
 const Handle = (props) => {
     const click = (event) => event.stopPropagation();
@@ -66,10 +70,15 @@ const Handle = (props) => {
     )
 }
 
-const Text = forwardRef(({ listId, _id, text, localText, renameListItem, renameListItemLocal, editMode, editIconElement }, inputElement) => {
+const Text = forwardRef(({ listId, _id, text, localText, isAddItem, renameListItem, renameListItemLocal, editIconElement, addListItem }, inputElement) => {
     const [canRename, setCanRename] = useState(true);
 
-    const [inputText, setInputText] = [localText != null ? localText : text, (text) => renameListItemLocal(listId, _id, text)];
+    const placeholderText = "Lägg till ett föremål...";
+
+    if (!isAddItem) 
+        var [inputText, setInputText] = [localText != null ? localText : text, (text) => renameListItemLocal(listId, _id, text)];
+    else 
+        var [inputText, setInputText] = useState("");
 
     useEffect(() => setInputText(text), [text]);
 
@@ -100,19 +109,35 @@ const Text = forwardRef(({ listId, _id, text, localText, renameListItem, renameL
 
         showEditIcon();
 
-        if (canRename) 
-            renameListItem(listId, _id, inputText);
-        else
-            setCanRename(true);
+        if (!isAddItem) {
+            if (canRename) renameListItem(listId, _id, inputText);
+            else setCanRename(true);
+        } else {
+            if (canRename) addListItem(listId, inputText);
+            else setCanRename(true);
+        }
     }
 
+    const inputTextFormatted = (inputText[0] || "").toUpperCase() + inputText.slice(1);
+
     return (
-        <form onSubmit={submit} style={styles.nameInput(editMode)}>
-            <Input className="listItemNameInput" value={inputText} id={_id} ref={inputElement}
-                onChange={(event) => setInputText(event.target.value)}
-                onFocus={hideEditIcon}
-                onBlur={rename}
-                onClick={(event) => event.stopPropagation()} />
+        <form onSubmit={submit}>
+            {
+                !isAddItem ? 
+                    <Input className="listItemNameInput" 
+                        value={inputTextFormatted} id={_id} ref={inputElement}
+                        onChange={(event) => setInputText(event.target.value)}
+                        onFocus={hideEditIcon}
+                        onBlur={rename}
+                        onClick={(event) => event.stopPropagation()} />
+                : 
+                    <Input className="listItemNameInput" 
+                        placeholder={placeholderText} id={_id} ref={inputElement}
+                        onChange={(event) => setInputText(event.target.value)}
+                        onFocus={hideEditIcon}
+                        onBlur={rename}
+                        onClick={(event) => event.stopPropagation()} />
+            }
         </form>
     );
 });
@@ -160,10 +185,12 @@ const styles = {
             paddingBottom: isEditMode ? "0px" : ""
         }
     },
-    nameInput: () => ({}),
     divider: (completed) => ({
         backgroundColor: completed ? "var(--completed-color)" : "",
         marginLeft: completed ? "0" : "1rem"
+    }),
+    deleteIcon: (hide) => ({
+        visibility: hide ? "hidden" : "visible"
     })
 }
 
