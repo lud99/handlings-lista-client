@@ -24,7 +24,7 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
     }
 
     return (
-        <div style={styles.container}>
+        <div>
             <h1 className="pin-title">Kontots PIN</h1>
             <p className="pin">{pin || "Laddar PIN..."}</p>
             <p className="pin-description">
@@ -52,13 +52,6 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
             </div>
         </div>
     );
-}
-
-const styles = {
-    container: {
-        padding: "1rem",
-        paddingTop: "2rem"
-    }
 }
 
 export default LoginPage;

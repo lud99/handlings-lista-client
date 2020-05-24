@@ -4,8 +4,9 @@ body {
     font-size: 1.75rem;
 }
 
-.App {
-    padding: 2rem;
+.app > div {
+    padding: 1rem;
+    padding-top: 2rem;
 }
 
 .pin-title {
@@ -76,10 +77,12 @@ body {
     }
 }
 
-@media only screen and (max-height: 550px) {
+@media only screen and (max-height: 600px) {
     #button-container {
         position: initial;
     }
+
+    .app > div { padding-top: 1rem; }
 }
 
 @media only screen and (max-width: 768px) {
