@@ -11,6 +11,7 @@ import HomePage from './components/pages/HomePage';
 import ListPage from './components/pages/ListPage';
 
 import OfflineSnackbar from './components/OfflineSnackbar';
+import InvalidPinSnackbar from './components/InvalidPinSnackbar';
 
 import Utils from './Utils';
 
@@ -27,7 +28,10 @@ class App extends Component {
             isLoggedIn: false,
             isOffline: false,
             shouldLoad: false,
-            resetDrag: false
+            resetDrag: false,
+            viewOnly: false,
+            showReadOnlySnackbar: false,
+            showInvalidPinSnackbar: false
         }  
 
         window.Utils = new Utils();
@@ -36,15 +40,16 @@ class App extends Component {
 
         const storedUrl = window.localStorage.getItem("url");
 
-        if (storedUrl && (window.Utils.isMobile() || window.Utils.isPWA())) 
-            history.replace(storedUrl);   
+        if (storedUrl) {
+            // Is mobile but opened in web browser
+            if ((window.Utils.isMobile() && window.Utils.isPWA()) || (!window.Utils.isMobile() && window.Utils.isPWA()))
+                history.replace(storedUrl);   
+        }
 
-            this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
+        this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
     }
 
     componentDidMount = () => {
-        
-
         document.addEventListener("contextmenu", event => event.preventDefault())
     }
 
@@ -124,7 +129,7 @@ class App extends Component {
         })
     }
 
-    reorderListItems = (listId, itemSourceIndex, itemDestinationIndex, reorderedItems, sortOrder) => {
+    reorderListItems = (listId, itemSourceIndex, itemDestinationIndex, reorderedItems) => {
         // Find the list
         const list = this.state.lists.find(list => list._id === listId);
 
@@ -141,7 +146,6 @@ class App extends Component {
                     listId: listId,
                     itemOldPositionIndex: itemSourceIndex,
                     itemNewPositionIndex: itemDestinationIndex,
-                    sortOrder: sortOrder
                 });
 
                 return;
@@ -200,7 +204,9 @@ class App extends Component {
     }
 
     enterPin = pin => {
-        this.login(pin, () => {
+        this.login(pin, ({ success }) => {
+            if (!success) return;
+
             localStorage.setItem("pin", pin);
 
             history.push("/home");
@@ -209,6 +215,21 @@ class App extends Component {
 
     openList = (listId) => history.push(`/list/${listId}`);
 
+    setShowReadOnlySnackbar = (flag) => {
+        this.state.showReadOnlySnackbar = flag;
+        this.setState(this.state);
+    }
+
+    setIsViewOnly = (flag) => {
+        this.state.isViewOnly = flag;
+        this.setState(this.state);
+    }
+
+    setShowInvalidPinSnackbar = (flag) => {
+        this.state.showInvalidPinSnackbar = flag;
+        this.setState(this.state);
+    }
+
     retryConnect = () => this.socket.init();
 
     render = () => {
@@ -216,6 +237,11 @@ class App extends Component {
             <Router history={history}>
                 <Container className="app">
                     <OfflineSnackbar isOpen={this.state.isOffline} retryConnect={this.retryConnect}/>
+                    <InvalidPinSnackbar 
+                        isOpen={this.state.showInvalidPinSnackbar} 
+                        setOpen={this.setShowInvalidPinSnackbar} 
+                        {...this} />
+
                     <Switch>
                     <Route path="/" exact render={() => {
                         if (!this.state.isLoggedIn)
@@ -228,15 +254,14 @@ class App extends Component {
                             pin={this.state.pin} 
                             login={this.login}
                             enterPin={this.enterPin}
-                            isOffline={this.state.isOffline} /> 
+                            isOffline={this.state.isOffline}
+                            setShowInvalidPinSnackbar={this.setShowInvalidPinSnackbar} /> 
                     )} />
 
                     <Route path="/login/:pin" exact render={(context) => {
                         const pin = context.match.params.pin;
 
                         this.enterPin(pin);
-
-                        return <></>;
                     }} />
 
                     <Route path="/home" exact render={() => (
@@ -254,6 +279,24 @@ class App extends Component {
                         if (!currentList) return <Redirect to="/home" />
 
                         return <ListPage list={currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
+                    }}>
+                    </Route>
+
+                    <Route path="/view/:id" exact render={(context) => {
+                        const listId = context.match.params.id;
+
+                        this.state.viewOnly = true;
+
+                        const currentList = this.state.lists ? findList(this.state.lists, listId) : {};
+                        if (!currentList) return <Redirect to="/login" />
+
+                        return <ListPage 
+                            list={currentList} 
+                            isViewOnly={this.state.viewOnly} 
+                            shouldLoad={this.state.shouldLoad}
+                            isSnackbarOpen={this.state.showReadOnlySnackbar} 
+                            setOpenSnackbar={this.setShowReadOnlySnackbar}
+                            resetDrag={this.state.resetDrag} {...this} />
                     }}>
                     </Route>
 

@@ -8,7 +8,7 @@ import history from '../../history';
 
 import '../../css/Login.css';
 
-const LoginPage = ({ pin, enterPin, login, isOffline }) => {
+const LoginPage = ({ pin, enterPin, login, isOffline, setShowInvalidPinSnackbar }) => {
     const enterPinClick = () => {
         const pin = window.prompt("Skriv in PIN");
 
@@ -17,10 +17,16 @@ const LoginPage = ({ pin, enterPin, login, isOffline }) => {
 
     const loginClick = (event) => {
         event.preventDefault();
+
+        const toHome = (success) => {
+            if (success) history.push("/home");
+            
+            setShowInvalidPinSnackbar(!success);
+        }
         
         // If already logged in
-        if (login(pin, () => history.push("/home"))) // Go to home when logged in
-            history.push("/home"); // Go to home if already logged in
+        if (login(pin, toHome)) // Go to home when logged in
+            toHome(true); // Go to home if already logged in
     }
 
     return (

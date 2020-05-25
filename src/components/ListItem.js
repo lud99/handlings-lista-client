@@ -9,7 +9,7 @@ import Input from './Input';
 import Delete from './Delete';
 
 const Item = (props) => {
-    const { _id, listId, text, completed, snapshot, provided, toggleListItemCompleted, removeListItem, hideDeleteIcon } = props;
+    const { _id, listId, text, completed, isViewOnly, snapshot, provided, toggleListItemCompleted, removeListItem, hideDeleteIcon } = props;
 
     const editIconElement = useRef(null);
     const nameInput = useRef(null);
@@ -20,8 +20,8 @@ const Item = (props) => {
 
     const isEditMode = snapshot !== null;
 
-    // Make the item draggable
-    if (snapshot) { 
+    // Make the item draggable if not in view only and the correct props exist
+    if (snapshot && !isViewOnly) { 
         // Only allow vertical dragging
         if (provided.draggableProps.style.transform) {
             try {
@@ -30,19 +30,17 @@ const Item = (props) => {
             } catch {}
         }
 
-        const textFormatted = (text[0] || "").toUpperCase() + text.slice(1);
-
         return (
             <div className="listItem" ref={provided.innerRef} {...provided.draggableProps} >
                 <ListItem button style={styles.item(snapshot.isDragging, completed)} onClick={click}>
-                    <ListItemText primary={textFormatted} className="listItemText" />
+                    <ListItemText primary={text} className="listItemText" />
                     <Handle {...provided.dragHandleProps} />
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
             </div>
         );  
-    // Make the item static   
-    } else {
+    // Make the item static if it is not in view only mode
+    } else if (!isViewOnly) {
         return (
             <div className="listItem">
                 <ListItem button style={styles.item(false, completed, isEditMode)}>
@@ -51,6 +49,15 @@ const Item = (props) => {
                         <ItemEdit text={text} ref={editIconElement} onClick={focusOnText} /> 
                         <Delete onClick={() => removeListItem(listId, _id)} style={styles.deleteIcon(hideDeleteIcon)} {...props} />
                     </div>
+                </ListItem>
+                <Divider style={styles.divider(completed)} />
+            </div>
+        );  
+    } else if (isViewOnly) { // Static, no editing (view only)
+        return (
+            <div className="listItem">
+                <ListItem button style={styles.item(false, completed)}>
+                    <ListItemText primary={text} className="listItemText" />
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
             </div>

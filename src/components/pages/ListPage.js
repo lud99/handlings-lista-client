@@ -8,15 +8,15 @@ import Header from '../Header';
 import ListItem from '../ListItem';
 import LoadingBackdrop from '../LoadingBackdrop';
 import Input from '../Input';
+import ReadOnlySnackbar from '../ReadOnlySnackbar';
 
 import '../../css/List.css';
 
 const ListPage = (props) => {
     // Destructure the props
-    const { list, login, addListItem, renameList, shouldLoad } = props;
+    const { list, login, addListItem, shouldLoad, setOpenSnackbar, isViewOnly, setIsViewOnly, isSnackbarOpen } = props;
 
     const [editMode, setEditMode] = useState(false);
-    const [sortOrder] = useState("-createdAt");
 
     const refs = {
         input: React.createRef(),
@@ -27,55 +27,49 @@ const ListPage = (props) => {
     useEffect(() => {
         login();
 
-        window.Utils.addResizeListener(() => {
-            const list = refs.list.current || document.querySelector(".list");
-            const addItemContainer = document.querySelector(".add-item-container");
-            const header = document.querySelector("header");
-
-            if (!list || !addItemContainer || !header) return;
-
-            // Set the height of the list
-            const listStyle = getListStyles();
-
-            list.style.paddingTop = listStyle.paddingTop;
-            list.style.paddingBottom = listStyle.paddingBottom;
-        }, "ListPage");
-
-        return () => { }
+        if (isViewOnly) setOpenSnackbar(true); 
     }, []);
 
-    const getListStyles = () => {
-        const addItemContainer = document.querySelector(".add-item-container");
-        const header = document.querySelector("header");
-
-        if (!addItemContainer || !header) return;
-
-        return {
-            paddingTop: header.offsetHeight + "px",
-            paddingBottom: addItemContainer.offsetHeight + 50 + "px"
-        }
-    }
-
     const toggleEditMode = () => setEditMode(!editMode);
+
+    console.log((list && !shouldLoad), isSnackbarOpen)
 
     return (
         <>
             { (!list || shouldLoad) && <LoadingBackdrop isEnabled={true} /> }
 
-            <Header title={list.name} listId={list._id} useEditButton={true} useRenameList={true}
-                editButtonState={editMode}  toggleEditMode={toggleEditMode} renameList={renameList} />
+            <Header 
+                title={list.name} 
+                listId={list._id} 
+                isViewOnly={isViewOnly}
+                useEditButton={true} 
+                useRenameList={true}
+                editButtonState={editMode} 
+                toggleEditMode={toggleEditMode} 
+                {...props} />
 
             { isEmpty(list) && <LoadingBackdrop isEnabled={true} /> }
 
-            <List list={list} editMode={editMode} sortOrder={sortOrder} listStyle={getListStyles()} {...props} />
+            <List list={list} editMode={editMode} isViewOnly={isViewOnly} {...props} />
 
-            <AddItem refs={refs} listId={list._id} addListItem={addListItem} />
+            {  !isViewOnly ? 
+            
+            <AddItem refs={refs} listId={list._id} addListItem={addListItem} /> :
+            
+            (list && !shouldLoad) && <ReadOnlySnackbar 
+                isOpen={isSnackbarOpen} 
+                setOpen={setOpenSnackbar}
+                listId={list._id}
+                login={login} 
+                setIsViewOnly={setIsViewOnly} /> 
+
+            }
         </>
     );
 }
 
 const List = (props) => {
-    const { list, reorderListItems, editMode, sortOrder, resetDrag, listStyle, addListItem } = props;
+    const { list, reorderListItems, editMode, isViewOnly, resetDrag } = props;
 
     // Reorder moved items
     const reorder = (list, startIndex, endIndex) => {
@@ -84,7 +78,7 @@ const List = (props) => {
         result.splice(endIndex, 0, removed);
 
         return result;
-    };
+    }
 
     const onDragEnd = (result) => {
         // Dropped outside the list
@@ -94,7 +88,7 @@ const List = (props) => {
         // Reorder the items locally first
         const reorderedItems = reorder(list.items, result.source.index, result.destination.index);
 
-        reorderListItems(list._id, result.source.index, result.destination.index, reorderedItems, sortOrder);
+        reorderListItems(list._id, result.source.index, result.destination.index, reorderedItems);
     }
 
     /*const newListItem = {
@@ -112,24 +106,24 @@ const List = (props) => {
             
             <></> : 
             
-            editMode ?
+            (editMode || isViewOnly) ?
 
-            // Static list
-            list.items !== null && <MaterialList className="list" component="div" style={listStyle}>
+            // Static editable list
+            list.items != null && <MaterialList className="list items-list" component="div">
                 { list.items.map((item, index) => (
-                    <ListItem {...item} {...props} key={index}/>
+                    <ListItem isViewOnly={isViewOnly} {...item} {...props} key={index}/>
                 ))}
             </MaterialList> :  
 
-            // Draggable list
+            // Draggable editable list
             <DragDropContext style={styles.container} onDragEnd={onDragEnd}>
                 <Droppable droppableId="droppable">
                     {provided => (
-                        <MaterialList className="list" component="div" style={listStyle} ref={provided.innerRef} {...provided.draggableProps}>
+                        <MaterialList className="list items-list" component="div" ref={provided.innerRef} {...provided.draggableProps}>
                             { !isEmpty(list) && list.items !== null && list.items.map((item, index) => (
                                 <Draggable draggableId={item._id} index={index} key={item._id}>
                                     {(provided, snapshot) => (
-                                        <ListItem provided={provided} snapshot={snapshot} {...item} {...props} />
+                                        <ListItem provided={provided} snapshot={snapshot} isViewOnly={isViewOnly} {...item} {...props} />
                                     )}
                                 </Draggable>)
                             )}
@@ -137,7 +131,7 @@ const List = (props) => {
                         </MaterialList>
                     )}
                 </Droppable>
-            </DragDropContext>
+            </DragDropContext> 
             }
         </>
     )

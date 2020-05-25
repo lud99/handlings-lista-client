@@ -30,6 +30,8 @@ input[type="text"]:focus {
     height: auto;
 
     padding: 0;
+    padding-top: 56px;
+    padding-bottom: 25px;
     margin: 0 auto;
     margin-bottom: 2rem;
 
@@ -39,11 +41,22 @@ input[type="text"]:focus {
 
     font-size: 1.5rem;
 }
+.app .list.items-list {
+    padding-bottom: calc(5.5rem + 25px);
+}
 .list hr {
     transition: 0.25s all;
 } 
 .list > div > div {
     padding-right: 0.5rem;
+}
+
+.app .readOnlySnackbar {
+    font-size: 1rem;
+}
+
+.app .readOnlySnackbar div {
+    font-size: inherit;
 }
 
 .item-container:last-child {

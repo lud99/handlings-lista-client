@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 
-import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography, Chip } from '@material-ui/core';
 
 import BackIcon from '@material-ui/icons/ArrowBack';
 import EditIcon from '@material-ui/icons/Edit';
+import LockIcon from '@material-ui/icons/Lock';
 
 import Input from './Input';
 
 import '../css/Header.css';
 import history from '../history';
 
-const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, toggleEditMode, renameList }) => {
+const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, toggleEditMode, renameList, setOpenSnackbar, isViewOnly }) => {
     const pageUrlLayout = [
         "/login",
         "/home",
@@ -36,12 +37,21 @@ const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, 
     return (
         <AppBar position="static">
             <Toolbar>
-                <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
+                { !isViewOnly && <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
                     <BackIcon />
-                </IconButton>
-                <Title title={title} editMode={editButtonState} renameList={renameList} useRenameList={useRenameList} listId={listId} />
+                </IconButton> }
 
-                { useEditButton && 
+                <Title 
+                    title={title} 
+                    listId={listId}
+                    editMode={editButtonState} 
+                    isViewOnly={isViewOnly}
+                    renameList={renameList} 
+                    useRenameList={useRenameList} 
+                    setOpenSnackbar={setOpenSnackbar}
+                    />
+
+                { (!isViewOnly && useEditButton) && 
                 <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editButtonState)} onClick={toggleEditMode}>
                     <EditIcon />
                 </IconButton> }
@@ -54,16 +64,23 @@ Header.defaultProps = {
     useRenameList: false,
 }
 
-const Title = ({ title, editMode, renameList, listId, useRenameList }) => {    
+const Title = ({ title, listId, useRenameList, editMode, isViewOnly, renameList, setOpenSnackbar }) => {  
     return (
-        <Typography variant="h6" className="title" style={styles.title}>
-            { (editMode && useRenameList) ? 
-                // Input
-                <TitleInput title={title} renameList={renameList} listId={listId} /> :
-                // Static text
-                title
+        <>
+            <Typography variant="h6" className="title" style={styles.title(isViewOnly)}>
+                { (editMode && useRenameList) ? 
+                    // Input
+                    <TitleInput title={title} renameList={renameList} listId={listId} /> :
+                    // Static text
+                    title
+                }
+            </Typography>
+
+            { isViewOnly && <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={() => setOpenSnackbar(true)}>
+                <LockIcon />
+            </IconButton> 
             }
-        </Typography>
+        </>
     )
 }
 
@@ -105,9 +122,9 @@ const TitleInput = ({ title, renameList, listId }) => {
 }
 
 const styles = {
-    title: {
-        width: "calc(100% - 64px)"
-    },
+    title: (isViewOnly) => ({
+        width: `calc(100% - ${!isViewOnly ? 64 : 0}px)`
+    }),
     titleEditButton: {
         display: "inline-block"
     },

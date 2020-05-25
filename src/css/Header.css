@@ -24,6 +24,10 @@ header .title {
 
     margin-left: 0.25rem;
 
+    white-space: nowrap;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-transform: capitalize;
 }
 
@@ -49,5 +53,9 @@ header .title input {
 header .editButton {
     padding: 0.25rem;
     margin-left: auto;
-    margin-right: 0;
+    margin-right: 3px;
+}
+
+header .readOnly {
+    margin-right: -3px;
 }

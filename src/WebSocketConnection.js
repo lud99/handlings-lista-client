@@ -140,25 +140,34 @@ class WebSocketConnection {
                 if (message.success) {           
                     this.app.state.pin = message.data.pin;    
                     this.app.state.lists = message.data.lists;
-
-                    this.updateState();
-
                     this.app.state.isLoggedIn = true;
+                    this.app.state.showInvalidPinSnackbar = false;
 
-                    // Get message callback
-                    const callback = this.getMessageCallback(message.callbackId);
-
-                    // Run the callback
-                    callback(message);
+                    localStorage.setItem("pin", message.data.pin);
                 } else {
-                    localStorage.removeItem("pin");
+                    /*if (localStorage.getItem("pin")) {
+                        this.app.state.showInvalidPinSnackbar = true;
+                        localStorage.removeItem("pin");
 
-                    this.app.state.pin = null;
+                        this.app.state.pin = null;
+    
+                        this.send({ type: "create-user" });
+    
+                        history.push("/login");*/
+                    /* } else {
+                        
+                    }*/
 
-                    this.send({ type: "create-user" });
-
-                    history.push("/login");
+                    this.app.state.showInvalidPinSnackbar = true;
                 }
+
+                this.updateState();
+                
+                // Get message callback
+                const callback = this.getMessageCallback(message.callbackId);
+
+                // Run the callback
+                callback(message);
 
                 break;
             }

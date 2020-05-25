@@ -16,20 +16,6 @@ const Home = (props) => {
 
     useEffect(() => {
         login();
-
-        // Don't make the body fixed (causes problems with scrolling)
-        document.body.style.position = "";
-
-        // Disable scrolling on ios
-        window.Utils.addResizeListener(async () => {
-            const header = document.querySelector("header");
-            const listContainer = document.querySelector(".list-container");
-
-            if (!header || !listContainer) return;
-
-            listContainer.style.paddingTop = header.offsetHeight + "px";
-            listContainer.style.paddingBottom = "80px";
-        }, "Home");
     }, []);
 
     const addListClick = () => {
@@ -45,16 +31,15 @@ const Home = (props) => {
             { (!lists || shouldLoad) && <LoadingBackdrop isEnabled={true} /> }
             <Header title="Listor" useEditButton={true} editButtonState={editMode} toggleEditMode={toggleEditMode}/>
 
-            <div className="list-container">
-                <List className="list" component="div" style={styles.list}> 
-                    { lists && (lists.length === 0 ?
-                    // No lists
-                    <p className="noLists">Klicka på plusset för att skapa din första lista</p> : 
+            <List className="list" component="div" style={styles.list}> 
+                { lists && (lists.length === 0 ?
+                // No lists
+                <p className="noLists">Klicka på plusset för att skapa din första lista</p> : 
 
-                    // Lists
-                    lists.map(list => <Item list={list} key={list._id} editMode={editMode} {...props} />)) }
-                </List>
-            </div>
+                // Lists
+                lists.map(list => <Item list={list} key={list._id} editMode={editMode} {...props} />)) }
+            </List>
+            
             <Fab color="primary" aria-label="add" size="large" className="addButton" accessKey="+" onClick={addListClick}>
                 <AddIcon />
             </Fab> 
