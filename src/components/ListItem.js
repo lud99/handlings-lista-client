@@ -30,12 +30,10 @@ const Item = (props) => {
             } catch {}
         }
 
-        const textFormatted = (text[0] || "").toUpperCase() + text.slice(1);
-
         return (
             <div className="listItem" ref={provided.innerRef} {...provided.draggableProps} >
                 <ListItem button style={styles.item(snapshot.isDragging, completed)} onClick={click}>
-                    <ListItemText primary={textFormatted} className="listItemText" />
+                    <ListItemText primary={text} className="listItemText" />
                     <Handle {...provided.dragHandleProps} />
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
