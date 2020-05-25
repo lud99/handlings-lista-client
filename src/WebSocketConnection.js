@@ -269,7 +269,7 @@ class WebSocketConnection {
 
                 // Add the item to it
                 if (list) {
-                    list.items.unshift(message.data);
+                    list.items.push(message.data);
 
                     const activeItemId = document.activeElement.id;
                     const item = window.Utils.findItem(list.items, activeItemId) || {};
