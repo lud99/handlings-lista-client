@@ -37,6 +37,10 @@ class Utils {
         return window.innerHeight > window.innerWidth;
     }
 
+    capitalize(string = "") {
+        return (string[0] || "").toUpperCase() + string.slice(1);
+    }
+
     async setTimeout(time = 0) {
         return new Promise(resolve => {
             setTimeout(() => resolve(), time);

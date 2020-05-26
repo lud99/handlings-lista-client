@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 
-import { AppBar, Toolbar, IconButton, Typography, Chip } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 
 import BackIcon from '@material-ui/icons/ArrowBack';
 import EditIcon from '@material-ui/icons/Edit';
@@ -11,7 +11,17 @@ import Input from './Input';
 import '../css/Header.css';
 import history from '../history';
 
-const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, toggleEditMode, renameList, setOpenSnackbar, isViewOnly }) => {
+const Header = (props) => {
+    const { 
+        list,
+        title,
+        useEditButton, 
+        editMode, 
+        toggleEditMode, 
+        setShowReadOnlySnackbar, 
+        setShowInvalidPinSnackbar,
+        isViewOnly } = props;
+
     const pageUrlLayout = [
         "/login",
         "/home",
@@ -34,6 +44,14 @@ const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, 
         history.push(previousUrl)
     }
 
+    const openReadOnlySnackbar = () => {
+        setShowInvalidPinSnackbar(false);
+
+        setShowReadOnlySnackbar(true);
+    }
+
+    const titleFormatted = window.Utils.capitalize(list ? list.name : title);
+
     return (
         <AppBar position="static">
             <Toolbar>
@@ -41,20 +59,17 @@ const Header = ({ title, listId, useEditButton, useRenameList, editButtonState, 
                     <BackIcon />
                 </IconButton> }
 
-                <Title 
-                    title={title} 
-                    listId={listId}
-                    editMode={editButtonState} 
-                    isViewOnly={isViewOnly}
-                    renameList={renameList} 
-                    useRenameList={useRenameList} 
-                    setOpenSnackbar={setOpenSnackbar}
-                    />
+                <Title titleFormatted={titleFormatted} {...props} />
 
                 { (!isViewOnly && useEditButton) && 
-                <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editButtonState)} onClick={toggleEditMode}>
+                <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
                     <EditIcon />
                 </IconButton> }
+
+                { isViewOnly && <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={openReadOnlySnackbar}>
+                    <LockIcon />
+                </IconButton> 
+                }
             </Toolbar>
         </AppBar>
     )
@@ -64,23 +79,16 @@ Header.defaultProps = {
     useRenameList: false,
 }
 
-const Title = ({ title, listId, useRenameList, editMode, isViewOnly, renameList, setOpenSnackbar }) => {  
+const Title = ({ titleFormatted, listId, useRenameList, editMode, isViewOnly, renameList }) => {  
     return (
-        <>
-            <Typography variant="h6" className="title" style={styles.title(isViewOnly)}>
-                { (editMode && useRenameList) ? 
-                    // Input
-                    <TitleInput title={title} renameList={renameList} listId={listId} /> :
-                    // Static text
-                    title
-                }
-            </Typography>
-
-            { isViewOnly && <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={() => setOpenSnackbar(true)}>
-                <LockIcon />
-            </IconButton> 
+        <Typography variant="h6" className="title" style={styles.title(isViewOnly)}>
+            { (editMode && useRenameList) ? 
+                // Input
+                <TitleInput title={titleFormatted} renameList={renameList} listId={listId} /> :
+                // Static text
+                titleFormatted
             }
-        </>
+        </Typography>
     )
 }
 
@@ -90,7 +98,7 @@ const TitleInput = ({ title, renameList, listId }) => {
 
     const inputElement = useRef(null);
 
-    useEffect(() => setTitleInput(title), [title]);
+    useEffect(() => setTitleInput(window.Utils.capitalize(title)), [title]);
     useEffect(() => {
         inputElement.current.addEventListener("manualblur", () => {
             setCanRename(false);
@@ -115,7 +123,7 @@ const TitleInput = ({ title, renameList, listId }) => {
     return (
         <form onSubmit={submit}>
             <Input value={titleInput} id="list-name-input" ref={inputElement}
-                onChange={(event) => setTitleInput(event.target.value)}
+                onChange={(event) => setTitleInput(window.Utils.capitalize(event.target.value))}
                 onBlur={rename} />
         </form> 
     )
@@ -128,7 +136,7 @@ const styles = {
     titleEditButton: {
         display: "inline-block"
     },
-    editButton: (editButtonState) => ({ color: !editButtonState ? "#fff" : "#c32160" })
+    editButton: (editMode) => ({ color: !editMode ? "#fff" : "#c32160" })
 }
 
 export default Header;

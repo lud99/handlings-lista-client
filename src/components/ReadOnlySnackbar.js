@@ -19,7 +19,7 @@ const ReadOnlySnackbar = ({ isOpen, setOpen, login, listId }) => {
 
         const pin = prompt("Skriv in PIN");
 
-        if (pin) login(pin, ({ success }) => success && history.push(`/list/${listId}`));
+        if (pin) login(pin, ({ success }) => success ? history.push(`/list/${listId}`) : setOpen(false));
     }
 
     return (
@@ -31,7 +31,7 @@ const ReadOnlySnackbar = ({ isOpen, setOpen, login, listId }) => {
             message="Du visar denna lista i skrivskyddat läge. Den går inte att redigera om du inte loggar in"
             action={
                 <>
-                    <Button color="secondary" size="inherit" className="offlineSnackbarRetry" onClick={loginClick}>Logga in</Button>
+                    <Button color="secondary" size="medium" className="offlineSnackbarRetry" onClick={loginClick}>Logga in</Button>
                     <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
                         <CloseIcon fontSize="inherit" />
                     </IconButton>

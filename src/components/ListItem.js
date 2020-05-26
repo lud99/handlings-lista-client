@@ -18,6 +18,8 @@ const Item = (props) => {
 
     const focusOnText = () => nameInput.current.focus();
 
+    const textFormatted = window.Utils.capitalize(text);
+
     const isEditMode = snapshot !== null;
 
     // Make the item draggable if not in view only and the correct props exist
@@ -33,7 +35,7 @@ const Item = (props) => {
         return (
             <div className="listItem" ref={provided.innerRef} {...provided.draggableProps} >
                 <ListItem button style={styles.item(snapshot.isDragging, completed)} onClick={click}>
-                    <ListItemText primary={text} className="listItemText" />
+                    <ListItemText primary={textFormatted} className="listItemText" />
                     <Handle {...provided.dragHandleProps} />
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
@@ -46,7 +48,7 @@ const Item = (props) => {
                 <ListItem button style={styles.item(false, completed, isEditMode)}>
                     <Text {...props} ref={nameInput} editIconElement={editIconElement}/>
                     <div style={{ whiteSpace: "nowrap" }}>
-                        <ItemEdit text={text} ref={editIconElement} onClick={focusOnText} /> 
+                        <ItemEdit text={textFormatted} ref={editIconElement} onClick={focusOnText} /> 
                         <Delete onClick={() => removeListItem(listId, _id)} style={styles.deleteIcon(hideDeleteIcon)} {...props} />
                     </div>
                 </ListItem>
@@ -57,7 +59,7 @@ const Item = (props) => {
         return (
             <div className="listItem">
                 <ListItem button style={styles.item(false, completed)}>
-                    <ListItemText primary={text} className="listItemText" />
+                    <ListItemText primary={textFormatted} className="listItemText" />
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
             </div>
@@ -85,7 +87,10 @@ const Text = forwardRef(({ listId, _id, text, localText, isAddItem, renameListIt
     const placeholderText = "Lägg till ett föremål...";
 
     if (!isAddItem) 
-        var [inputText, setInputText] = [localText != null ? localText : text, (text) => renameListItemLocal(listId, _id, text)];
+        var [inputText, setInputText] = [
+            localText != null ? localText : text, 
+            (text) => renameListItemLocal(listId, _id, window.Utils.capitalize(text))
+        ];
     else 
         var [inputText, setInputText] = useState("");
 
@@ -127,7 +132,7 @@ const Text = forwardRef(({ listId, _id, text, localText, isAddItem, renameListIt
         }
     }
 
-    const inputTextFormatted = (inputText[0] || "").toUpperCase() + inputText.slice(1);
+    const inputTextFormatted = window.Utils.capitalize(inputText);
 
     return (
         <form onSubmit={submit}>

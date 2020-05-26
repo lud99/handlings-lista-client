@@ -28,7 +28,6 @@ header .title {
 
     overflow: hidden;
     text-overflow: ellipsis;
-    text-transform: capitalize;
 }
 
 header .title form {
@@ -47,15 +46,13 @@ header .title input {
 
     overflow: hidden;
     text-overflow: ellipsis;
-    text-transform: capitalize;
 }
 
 header .editButton {
-    padding: 0.25rem;
     margin-left: auto;
-    margin-right: 3px;
+    margin-right: 0px;
 }
 
 header .readOnly {
-    margin-right: -3px;
+    margin-right: 0px;
 }

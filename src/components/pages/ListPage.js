@@ -9,12 +9,27 @@ import ListItem from '../ListItem';
 import LoadingBackdrop from '../LoadingBackdrop';
 import Input from '../Input';
 import ReadOnlySnackbar from '../ReadOnlySnackbar';
+import InvalidPinSnackbar from '../InvalidPinSnackbar';
+
+import history from '../../history';
 
 import '../../css/List.css';
 
 const ListPage = (props) => {
     // Destructure the props
-    const { list, login, addListItem, shouldLoad, setOpenSnackbar, isViewOnly, setIsViewOnly, isSnackbarOpen } = props;
+    const { 
+        list,
+        listIdUrl, 
+        login, 
+        getList,
+        addListItem, 
+        shouldLoad, 
+        showReadOnlySnackbar, 
+        setShowReadOnlySnackbar,
+        showInvalidPinSnackbar,
+        setShowInvalidPinSnackbar,
+        isViewOnly, 
+        setIsViewOnly } = props;
 
     const [editMode, setEditMode] = useState(false);
 
@@ -27,12 +42,18 @@ const ListPage = (props) => {
     useEffect(() => {
         login();
 
-        if (isViewOnly) setOpenSnackbar(true); 
+        if (isViewOnly) {
+            getList(listIdUrl);
+
+            setShowReadOnlySnackbar(true); 
+        }
     }, []);
 
     const toggleEditMode = () => setEditMode(!editMode);
 
-    console.log((list && !shouldLoad), isSnackbarOpen)
+    const invalidPinOnClose = () => isViewOnly && setShowReadOnlySnackbar(true); 
+
+    const onInvalidPinLogin = ({ success }) => success && history.push(`/list/${list._id}`)
 
     return (
         <>
@@ -41,24 +62,30 @@ const ListPage = (props) => {
             <Header 
                 title={list.name} 
                 listId={list._id} 
-                isViewOnly={isViewOnly}
+                editMode={editMode}
                 useEditButton={true} 
                 useRenameList={true}
-                editButtonState={editMode} 
                 toggleEditMode={toggleEditMode} 
                 {...props} />
 
             { isEmpty(list) && <LoadingBackdrop isEnabled={true} /> }
 
-            <List list={list} editMode={editMode} isViewOnly={isViewOnly} {...props} />
+            <List editMode={editMode} {...props} />
+
+            { isViewOnly && <InvalidPinSnackbar 
+                isOpen={showInvalidPinSnackbar} 
+                setOpen={setShowInvalidPinSnackbar} 
+                login={login}
+                onClose={invalidPinOnClose} 
+                onLogin={onInvalidPinLogin} /> }
 
             {  !isViewOnly ? 
             
             <AddItem refs={refs} listId={list._id} addListItem={addListItem} /> :
             
             (list && !shouldLoad) && <ReadOnlySnackbar 
-                isOpen={isSnackbarOpen} 
-                setOpen={setOpenSnackbar}
+                isOpen={showReadOnlySnackbar} 
+                setOpen={setShowReadOnlySnackbar}
                 listId={list._id}
                 login={login} 
                 setIsViewOnly={setIsViewOnly} /> 

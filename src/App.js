@@ -11,7 +11,6 @@ import HomePage from './components/pages/HomePage';
 import ListPage from './components/pages/ListPage';
 
 import OfflineSnackbar from './components/OfflineSnackbar';
-import InvalidPinSnackbar from './components/InvalidPinSnackbar';
 
 import Utils from './Utils';
 
@@ -47,6 +46,8 @@ class App extends Component {
         }
 
         this.socket = new WebSocketConnection(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this);
+
+        window.socket = this.socket;
     }
 
     componentDidMount = () => {
@@ -176,6 +177,10 @@ class App extends Component {
         this.setState(this.state);
     }
 
+    getList = (listId) => {
+        this.socket.send({ type: "get-list", listId: listId, joinSession: true });
+    }
+
     login = (pin = this.state.pin, callback) => {
         if (this.state.isLoggedIn && pin === this.state.pin)
             return true;
@@ -237,10 +242,6 @@ class App extends Component {
             <Router history={history}>
                 <Container className="app">
                     <OfflineSnackbar isOpen={this.state.isOffline} retryConnect={this.retryConnect}/>
-                    <InvalidPinSnackbar 
-                        isOpen={this.state.showInvalidPinSnackbar} 
-                        setOpen={this.setShowInvalidPinSnackbar} 
-                        {...this} />
 
                     <Switch>
                     <Route path="/" exact render={() => {
@@ -252,10 +253,9 @@ class App extends Component {
                     <Route path="/login" exact render={() => (
                         <LoginPage 
                             pin={this.state.pin} 
-                            login={this.login}
-                            enterPin={this.enterPin}
                             isOffline={this.state.isOffline}
-                            setShowInvalidPinSnackbar={this.setShowInvalidPinSnackbar} /> 
+                            showInvalidPinSnackbar={this.state.showInvalidPinSnackbar}
+                            {...this} /> 
                     )} />
 
                     <Route path="/login/:pin" exact render={(context) => {
@@ -269,6 +269,7 @@ class App extends Component {
                             lists={this.state.lists} 
                             isLoggedIn={this.isLoggedIn} 
                             shouldLoad={this.state.shouldLoad}
+                            showInvalidPinSnackbar={this.state.showInvalidPinSnackbar}
                             {...this} />
                     )} />
                     
@@ -278,7 +279,12 @@ class App extends Component {
                         const currentList = this.state.lists ? findList(this.state.lists, listId) : {};
                         if (!currentList) return <Redirect to="/home" />
 
-                        return <ListPage list={currentList} shouldLoad={this.state.shouldLoad} resetDrag={this.state.resetDrag} {...this} />
+                        return <ListPage 
+                            list={currentList} 
+                            shouldLoad={this.state.shouldLoad} 
+                            resetDrag={this.state.resetDrag} 
+                            showInvalidPinSnackbar={this.state.showInvalidPinSnackbar}
+                            {...this} />
                     }}>
                     </Route>
 
@@ -291,12 +297,14 @@ class App extends Component {
                         if (!currentList) return <Redirect to="/login" />
 
                         return <ListPage 
-                            list={currentList} 
+                            list={currentList}
+                            listIdUrl={listId} 
                             isViewOnly={this.state.viewOnly} 
                             shouldLoad={this.state.shouldLoad}
-                            isSnackbarOpen={this.state.showReadOnlySnackbar} 
-                            setOpenSnackbar={this.setShowReadOnlySnackbar}
-                            resetDrag={this.state.resetDrag} {...this} />
+                            showInvalidPinSnackbar={this.state.showInvalidPinSnackbar}
+                            showReadOnlySnackbar={this.state.showReadOnlySnackbar} 
+                            resetDrag={this.state.resetDrag} 
+                            {...this} />
                     }}>
                     </Route>
 

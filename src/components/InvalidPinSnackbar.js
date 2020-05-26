@@ -5,12 +5,14 @@ import CloseIcon from '@material-ui/icons/Close';
 
 import history from '../history';
 
-const InvalidPinSnackbar = ({ isOpen, setOpen, login }) => {
+const InvalidPinSnackbar = ({ isOpen, setOpen, login, onClose, onLogin = ({ success }) => success && history.push("/home")}) => {
     const handleClose = (event, reason) => {
         if (reason === 'clickaway')
             return;
 
         setOpen(false);
+
+        if (onClose) onClose();
     };
 
     const loginClick = (event, reason) => {
@@ -19,7 +21,7 @@ const InvalidPinSnackbar = ({ isOpen, setOpen, login }) => {
 
         const pin = prompt("Skriv in PIN");
 
-        if (pin) login(pin, ({ success }) => success && history.push("/home"));
+        if (pin) login(pin, onLogin);
     }
 
     return (
@@ -32,7 +34,7 @@ const InvalidPinSnackbar = ({ isOpen, setOpen, login }) => {
                 <>
                     <Button color="secondary" size="medium" className="offlineSnackbarRetry" onClick={loginClick}>Försök igen</Button>
                     <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
-                        <CloseIcon fontSize="medium" />
+                        <CloseIcon fontSize="inherit" />
                     </IconButton>
                 </>
             }

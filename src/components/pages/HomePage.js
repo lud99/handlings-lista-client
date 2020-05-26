@@ -63,7 +63,7 @@ const Item = ({ list, openList, editMode, removeList }) => {
         <>      
             <ListItem button style={styles.listItem} onClick={() => openList(list._id)}>
                 <div className="listTopRow" style={styles.topRow(editMode)}>
-                    <ListItemText primary={list.name} style={styles.listName}/>
+                    <ListItemText primary={window.Utils.capitalize(list.name)} style={styles.listName}/>
                     <ListItemText primary={dateText} style={styles.date(editMode)}/>
                 </div>
                 <div className="listBottomRow" style={styles.bottomRow(editMode)}>
@@ -79,9 +79,7 @@ const Item = ({ list, openList, editMode, removeList }) => {
 
 const ItemTextPreview = ({ items }) => {
     // Filter out the items with no text
-    const filteredItems = items.filter(item => item.text !=="");
-
-    const listIsEmpty = filteredItems.length === 0;
+    const filteredItems = items.filter(item => item.text !== "");
 
     return (
         <ul className="listItemsPreview">
@@ -91,7 +89,7 @@ const ItemTextPreview = ({ items }) => {
                 filteredItems.map((item, i) => {
                     const style = { color: item.completed ? "#5e982a" : "#313131" };
 
-                    const text = (i < filteredItems.length - 1) ? `${item.text}, ` : item.text; 
+                    const text = window.Utils.capitalize((i < filteredItems.length - 1) ? `${item.text}, ` : item.text); 
 
                     return <span style={style} key={item._id}>{text}</span>
                 }) : 

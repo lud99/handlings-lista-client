@@ -203,8 +203,23 @@ class WebSocketConnection {
                 break;
             }
 
-            // Lists
-            case "get-lists": { // Get lists
+            case "get-list": {
+                // Get message callback
+                const callback = this.getMessageCallback(message.callbackId);
+
+                const pin = message.data.userPin;
+
+                this.app.state.lists = [message.data];
+                this.app.state.pin = pin;
+
+                this.updateState();
+                
+                // Run the callback
+                callback(message);
+
+                break;
+            }
+            case "get-lists": {
                 // Get message callback
                 const callback = this.getMessageCallback(message.callbackId);
 
