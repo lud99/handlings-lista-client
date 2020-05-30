@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
+import { connect } from 'react-redux';
+import { setOffline } from '../../redux/offline'
 import { Button, Snackbar, IconButton } from '@material-ui/core';
+import WebSocketConnection from '../../WebSocketConnection'; 
 import CloseIcon from '@material-ui/icons/Close';
 
-const OfflineSnackbar = ({ isOpen, retryConnect }) => {
+const OfflineSnackbar = ({ isOpen }) => {
     const [open, setOpen] = useState(isOpen);
 
     useEffect(() => setOpen(isOpen), [isOpen]);
@@ -19,7 +22,7 @@ const OfflineSnackbar = ({ isOpen, retryConnect }) => {
         if (reason === 'clickaway')
             return;
             
-        retryConnect();
+        WebSocketConnection.reconnect(0);
     }
 
     return (
@@ -40,4 +43,10 @@ const OfflineSnackbar = ({ isOpen, retryConnect }) => {
     );
 }
 
-export default OfflineSnackbar;
+const mapStateToProps = state => ({
+    isOpen: state.offline
+});
+
+const mapDispatch = { };
+
+export default connect(mapStateToProps, mapDispatch)(OfflineSnackbar)

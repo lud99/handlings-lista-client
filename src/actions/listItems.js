@@ -1,16 +1,21 @@
+export const SET_LIST_ITEMS = "SET_LIST_ITEMS";
 export const ADD_LIST_ITEM = "ADD_LIST_ITEM";
 export const REMOVE_LIST_ITEM = "REMOVE_LIST_ITEM";
 export const RENAME_LIST_ITEM = "RENAME_LIST_ITEM";
 
-export const addListItem = (text, id, listId) => {
+export const setListItems = (listItems) => {
     return {
-        type: ADD_LIST_ITEM,
-        text: text,
-        id: id,
-        listId: listId
+        type: SET_LIST_ITEMS,
+        listItems: listItems
     }
 }
 
+export const addListItem = (listItem) => {
+    return {
+        type: ADD_LIST_ITEM,
+        ...listItem
+    }
+}
 
 export const removeListItem = (id) => {
     return {

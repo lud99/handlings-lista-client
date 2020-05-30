@@ -1,9 +1,5 @@
 class Utils {
-    constructor() {
-        this.resizeListeners = new Map();
-    }
-
-    createId(length = 6, chars = "abcdefghijklmnopqrstuvwxyz1234567890") {
+    static createId(length = 6, chars = "abcdefghijklmnopqrstuvwxyz1234567890") {
         let result = "";
 
         for (let i = 0; i < length; i++)
@@ -12,19 +8,19 @@ class Utils {
         return result;
     }
 
-    createPIN() {
+    static createPIN() {
         return this.createId(6, "1234567890");
     }
 
-    isIos() {
+    static isIos() {
         return (/iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream
     }
 
-    isPWA() {
+    static isPWA() {
         return (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');
     }
 
-    isMobile() {
+    static isMobile() {
         var check = false;
         
         // eslint-disable-next-line
@@ -33,69 +29,22 @@ class Utils {
         return check;
     }
 
-    isPortrait() {
+    static isPortrait() {
         return window.innerHeight > window.innerWidth;
     }
 
-    capitalize(string = "") {
+    static capitalize(string = "") {
         return (string[0] || "").toUpperCase() + string.slice(1);
     }
 
-    async setTimeout(time = 0) {
+    static async setTimeout(time = 0) {
         return new Promise(resolve => {
             setTimeout(() => resolve(), time);
         });
     }
 
-    async shouldScroll() {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                const app = document.querySelector(".app");
-
-                if (!app) return resolve(false);
-
-                const originalAppHeightStyle = getComputedStyle(app).height;
-                
-                // Get the height of the elements combined
-                app.style.height = "auto";
-    
-                const documentHeight = app.offsetHeight;
-    
-                const windowHeight = window.innerHeight
-    
-                const shouldScroll = (documentHeight - 10 /* Some margin */> windowHeight);
-
-                // Reset the height
-                app.style.height = originalAppHeightStyle;
-    
-                // Should scroll
-                if (shouldScroll) resolve(true);
-
-                resolve(false);
-            }, 0);
-        });
-    }
-
-    findList = (lists, listId) => lists.find(list => list._id === listId)
-    findItem = (items, itemId) => items.find(item => item._id === itemId)
-
-    addResizeListener(resize, functionKey) {
-        if (!this.resizeListeners.has(functionKey)) {
-            window.addEventListener("resize", resize);
-
-            resize();
-
-            this.resizeListeners.set(functionKey, resize);
-        } else {
-            resize();
-        }
-    }
-
-    triggerResize(key) {
-        if (this.resizeListeners.has(key)) {
-            this.resizeListeners.get(key)();
-        }
-    }
+    static findList = (lists, listId) => lists && lists.find(list => list._id === listId)
+    static findItem = (items, itemId) => items && items.find(item => item._id === itemId)
 }
 
 export default Utils;

@@ -37,6 +37,12 @@
     max-width: 75%;
 }
 
+.homeListDelete.MuiIconButton-root {
+    padding: 0.65rem;
+    position: absolute;
+    right: 0.5rem;
+}
+
 .listItemsPreview {
     display: block;
     height: 1.5rem;

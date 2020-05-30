@@ -1,26 +1,30 @@
-import React, { Component, useState, useEffect, useRef, forwardRef } from 'react';
+import React, { Component, useRef, forwardRef } from 'react';
 
 import { ListItem, ListItemText, Divider, IconButton } from '@material-ui/core';
+import { toggleListItemCompleted, removeListItem } from '../../redux/user';
+import { connect } from 'react-redux'
 
 import DragHandle from '@material-ui/icons/DragHandle';
 import EditIcon from '@material-ui/icons/Edit';
 
-import Input from './Input';
-import Delete from './Delete';
+import Text from './ListItemText';
+import Delete from '../Delete';
+import Utils from '../../Utils';
 
 const Item = (props) => {
-    const { _id, listId, text, completed, isViewOnly, snapshot, provided, toggleListItemCompleted, removeListItem, hideDeleteIcon } = props;
+    const { _id, listId, text, completed } = props;
 
-    const editIconElement = useRef(null);
-    const nameInput = useRef(null);
+    const { toggleListItemCompleted, isViewOnly, snapshot, provided, removeListItem, hideDeleteIcon } = props;
 
-    const click = () => toggleListItemCompleted(listId, _id); 
+    const editIconElement = useRef();
+    const nameInput = useRef();
 
+    const click = () => toggleListItemCompleted({ _id, listId }); 
+    const remove = () => removeListItem({ _id, listId });
     const focusOnText = () => nameInput.current.focus();
 
-    const textFormatted = window.Utils.capitalize(text);
-
-    const isEditMode = snapshot !== null;
+    const textFormatted = Utils.capitalize(text);
+    const editMode = snapshot !== null;
 
     // Make the item draggable if not in view only and the correct props exist
     if (snapshot && !isViewOnly) { 
@@ -45,11 +49,11 @@ const Item = (props) => {
     } else if (!isViewOnly) {
         return (
             <div className="listItem">
-                <ListItem button style={styles.item(false, completed, isEditMode)}>
+                <ListItem button style={styles.item(false, completed, editMode)}>
                     <Text {...props} ref={nameInput} editIconElement={editIconElement}/>
                     <div style={{ whiteSpace: "nowrap" }}>
                         <ItemEdit text={textFormatted} ref={editIconElement} onClick={focusOnText} /> 
-                        <Delete onClick={() => removeListItem(listId, _id)} style={styles.deleteIcon(hideDeleteIcon)} {...props} />
+                        <Delete onClick={remove} style={styles.deleteIcon(hideDeleteIcon)} {...props} />
                     </div>
                 </ListItem>
                 <Divider style={styles.divider(completed)} />
@@ -80,81 +84,6 @@ const Handle = (props) => {
         </IconButton>
     )
 }
-
-const Text = forwardRef(({ listId, _id, text, localText, isAddItem, renameListItem, renameListItemLocal, editIconElement, addListItem }, inputElement) => {
-    const [canRename, setCanRename] = useState(true);
-
-    const placeholderText = "Lägg till ett föremål...";
-
-    if (!isAddItem) 
-        var [inputText, setInputText] = [
-            localText != null ? localText : text, 
-            (text) => renameListItemLocal(listId, _id, window.Utils.capitalize(text))
-        ];
-    else 
-        var [inputText, setInputText] = useState("");
-
-    useEffect(() => setInputText(text), [text]);
-
-    // Listen for custom blur events
-    useEffect(() => {
-        inputElement.current.addEventListener("manualblur", () => {
-            setCanRename(false);
-
-            inputElement.current.blur();
-        })
-    }, []);
-
-    const hideEditIcon = () => editIconElement.current.style.visibility = "hidden";
-    const showEditIcon = () => {
-        editIconElement.current.style.visibility = "";
-        editIconElement.current.style.cursor = "default";
-    }
-
-    const submit = (event) => {
-        event.preventDefault();
-
-        inputElement.current.blur();
-    }
-
-    const rename = () => {
-        // Refocus on the input if the text is empty
-        if (inputText === "") return inputElement.current.focus();
-
-        showEditIcon();
-
-        if (!isAddItem) {
-            if (canRename) renameListItem(listId, _id, inputText);
-            else setCanRename(true);
-        } else {
-            if (canRename) addListItem(listId, inputText);
-            else setCanRename(true);
-        }
-    }
-
-    const inputTextFormatted = window.Utils.capitalize(inputText);
-
-    return (
-        <form onSubmit={submit}>
-            {
-                !isAddItem ? 
-                    <Input className="listItemNameInput" 
-                        value={inputTextFormatted} id={_id} ref={inputElement}
-                        onChange={(event) => setInputText(event.target.value)}
-                        onFocus={hideEditIcon}
-                        onBlur={rename}
-                        onClick={(event) => event.stopPropagation()} />
-                : 
-                    <Input className="listItemNameInput" 
-                        placeholder={placeholderText} id={_id} ref={inputElement}
-                        onChange={(event) => setInputText(event.target.value)}
-                        onFocus={hideEditIcon}
-                        onBlur={rename}
-                        onClick={(event) => event.stopPropagation()} />
-            }
-        </form>
-    );
-});
 
 const ItemEdit = forwardRef(({ onClick }, ref) => (
     <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" onClick={onClick} ref={ref}>
@@ -194,11 +123,11 @@ class ItemHandler extends Component {
 }
 
 const styles = {
-    item: function(isBeingDragged, completed, isEditMode = false) { 
+    item: function(isBeingDragged, completed, editMode = false) { 
         return { 
             backgroundColor: isBeingDragged ? `${completed ? "#95da56" : "#fff"}` : `${completed ? "var(--completed-color)" : "#fff"}`,
-            paddingTop: isEditMode ? "0px" : "",
-            paddingBottom: isEditMode ? "0px" : ""
+            paddingTop: editMode ? "0px" : "",
+            paddingBottom: editMode ? "0px" : ""
         }
     },
     divider: (completed) => ({
@@ -210,4 +139,11 @@ const styles = {
     })
 }
 
-export default ItemHandler;
+const mapStateToProps = state => ({ 
+    lists: state.user.lists,
+    pin: state.user.pin 
+});
+
+const mapDispatch = { toggleListItemCompleted, removeListItem }
+
+export default connect(mapStateToProps, mapDispatch)(ItemHandler);

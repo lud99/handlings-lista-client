@@ -1,28 +1,41 @@
 import history from './history';
 
-class WebSocketConnection {
-    constructor(url, app) {
-        this.init(url, app);
-    }
+import Utils from './Utils';
 
-    init = (url = this.url, app = this.app, connectionCallback = () => {}) => {
+import { 
+    setUserInitialState, setUser, setPin, setLoggedIn,
+    setLists, addList, removeList, deleteList, renameList, 
+    setListItems, addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal } from './redux/user';
+
+import { setShouldLoad } from './redux/shouldLoad';
+import { setShowInvalidPinSnackbar } from './redux/showInvalidPinSnackbar';
+import { setOffline } from './redux/offline';
+
+class WebSocketConnection {
+    static init = (url = this.url, app = this.app, store = this.store, connectionCallback = () => {}) => {
+        window.webSocketConnection = this;
+
         this.socket = new WebSocket(url);
 
         // Connection timeout
         setTimeout(() => {
             // The server is offline
             if (this.socket.readyState !== WebSocket.OPEN) {
-                console.log("WebSocket connection timed out");
-
                 connectionCallback(this.socket.readyState);
                 
-                if (!this.checkingConnection)
-                    this.setOffline();
+                // Set offline if not connecting
+                if (!this.checkingConnection) {
+                    history.push("/login");
+
+                    // Only update the state if not offline
+                    if (!this.getState().offline) this.dispatch(setOffline(true));
+                }
             }
         }, 2000);
 
         this.url = url;
         this.app = app;
+        this.store = store;
 
         this.checkingConnection = false;
         this.isLoggingIn = false;
@@ -36,20 +49,16 @@ class WebSocketConnection {
 
             connectionCallback(this.socket.readyState);
 
-            this.app.state.isOffline = false;
-            this.updateState();
+            this.dispatch(setOffline(false));
 
             // Try to join the session if was previously logged in
-            if (this.app.state.isLoggedIn) {
-                this.send({ type: "join-session", pin: this.app.state.pin }, () => {
-                    this.app.state.isLoggedIn = true;
-
-                    this.updateState();
+            if (this.getState().loggedIn) {
+                this.send({ type: "join-session", pin: this.getState().pin }, () => {
+                    this.dispatch(setLoggedIn(true));
                 });
             }
 
-            if (this.toSend)
-                this.send(this.toSend);
+            if (this.toSend) this.send(this.toSend);
 
             const savedPin = localStorage.getItem("pin");
 
@@ -61,53 +70,47 @@ class WebSocketConnection {
                 this.send({ type: "create-user" });
         }
 
-        this.socket.onerror = () => {
-            console.log("Error connecting to '%s'", url);
-
-            this.socket.close();
-        }
+        this.socket.onerror = () => this.socket.close();
 
         // The onclose doesn't run if safari isn't in focus while the connection is closed. 
         // If the websocket connection closes, the onclose runs when the page is in focus again (on ios atleast)
         this.socket.onclose = () => {
             console.log("Connection closed with '%s'", url);
 
-            this.app.state.shouldLoad = true;
-
-            this.updateState();
+            this.dispatch(setShouldLoad(true));
 
             setTimeout(() => {
             
             // Try to reconnect
-            this.reconnect(0, () => {
+            this.reconnect(0, (readyState) => {
                 // Run on reconnect
 
+                if (readyState !== WebSocket.OPEN) return;
+
+                const { user, shouldLoad } = this.getState();
+
                 // If is logged in
-                if (this.app.state.isLoggedIn) {
+                if (user.loggedIn) {
                     
                     // Try to join the session again, if previous was logged in
-                    this.send({ type: "join-session", pin: this.app.state.pin }, () => {
-                        this.app.state.isOffline = false;
-                        this.app.state.isLoggedIn = true;
-
-                        this.updateState();
-
+                    this.send({ type: "join-session", pin: user.pin }, () => {
+                        this.dispatch(setOffline(false));
+                        this.dispatch(setLoggedIn(true));
+    
                         this.checkingConnection = false;
                     });
 
-                    this.send({ type: "get-lists", pin: this.app.state.pin }, ({ data }) => {
+                    this.send({ type: "get-lists", pin: user.pin }, ({ data }) => {
 
-                        this.app.state.lists = data.lists;
-
-                        this.updateState();
-                    })
+                        // Set all the lists (and their items)
+                        this.dispatch(setLists(data.lists));
+                    });
                 } else {
                     this.checkingConnection = false;
                 }
 
-                this.app.state.shouldLoad = false;
-
-                this.updateState();
+                // Only update the state if should load
+                if (shouldLoad) this.dispatch(setShouldLoad(false));
             });
         }, 3000);
         }
@@ -117,18 +120,13 @@ class WebSocketConnection {
 
             this.handleMessage(data);
         }
+
+        return this;
     }
 
-    setOffline = () => {
-        history.push("/login");
+    static reconnect = (waitTime = 5000, reconnectionCallback = () => {}) => setTimeout(this.init(this.url, this.app, this.store, reconnectionCallback), waitTime)
 
-        this.app.state.isOffline = true;
-        this.updateState();
-    }
-
-    reconnect = (waitTime = 5000, reconnectionCallback = () => {}) => setTimeout(this.init(this.url, this.app, reconnectionCallback), waitTime)
-
-    handleMessage = async (message) => {
+    static handleMessage = async (message) => {
         if (message.type !== "ping") console.log("Received message '%s'", message.type, message);
 
         switch (message.type) {
@@ -137,31 +135,20 @@ class WebSocketConnection {
                 this.isLoggingIn = false;
 
                 // If the login was successfull
-                if (message.success) {           
-                    this.app.state.pin = message.data.pin;    
-                    this.app.state.lists = message.data.lists;
-                    this.app.state.isLoggedIn = true;
-                    this.app.state.showInvalidPinSnackbar = false;
-
+                if (message.success) {       
+                    // Save the pin
                     localStorage.setItem("pin", message.data.pin);
+                    
+                    this.dispatch(setShowInvalidPinSnackbar(false));
+
+                    // Set the user (and all their lists and items) and pin
+                    this.dispatch(setUser(message.data));
+
+                    // Don't load any more. ready
+                    this.dispatch(setShouldLoad(false));
                 } else {
-                    /*if (localStorage.getItem("pin")) {
-                        this.app.state.showInvalidPinSnackbar = true;
-                        localStorage.removeItem("pin");
-
-                        this.app.state.pin = null;
-    
-                        this.send({ type: "create-user" });
-    
-                        history.push("/login");*/
-                    /* } else {
-                        
-                    }*/
-
-                    this.app.state.showInvalidPinSnackbar = true;
+                    this.dispatch(setShowInvalidPinSnackbar(true));
                 }
-
-                this.updateState();
                 
                 // Get message callback
                 const callback = this.getMessageCallback(message.callbackId);
@@ -176,7 +163,8 @@ class WebSocketConnection {
                 if (!message.success) {           
                     localStorage.removeItem("pin");
 
-                    this.app.state.pin = null;
+                    // Remove the saved user
+                    this.dispatch(setUserInitialState());
 
                     this.send({ type: "create-user" });
 
@@ -186,20 +174,18 @@ class WebSocketConnection {
                 break;
             }
             // Users
-            case "create-user": { // Create a user 
-                this.app.state.pin = message.data.pin;    
+            case "create-user": {
+                // Set the user (and all their lists and items) and pin
+                this.dispatch(setUser(message.data));
 
-                localStorage.setItem("pin", this.app.state.pin);
-
-                this.updateState();
+                localStorage.setItem("pin", message.data.pin);
 
                 break;
             }
-            case "get-user": { // Get a user
-                this.app.state.user = message.data;
-
-                this.updateState();
-                
+            case "get-user": {
+                // Set the user (and all their lists and items) and pin
+                this.dispatch(setUser(message.data));
+             
                 break;
             }
 
@@ -211,6 +197,7 @@ class WebSocketConnection {
 
                 this.app.state.lists = [message.data];
                 this.app.state.pin = pin;
+                this.dispatch(setPin(pin));
 
                 this.updateState();
                 
@@ -223,23 +210,16 @@ class WebSocketConnection {
                 // Get message callback
                 const callback = this.getMessageCallback(message.callbackId);
 
-                // Don't update the lists if they haven't changed
-                if (JSON.stringify(message.data.lists) === JSON.stringify(this.app.state.lists))
-                    return;
+                // Set the user (and all their lists and items) and pin
+                this.dispatch(setUser(message.data))
 
-                this.app.state.lists = message.data.lists;
-
-                this.updateState();
-                
                 // Run the callback
                 callback(message);
 
                 break;
             }
-            case "create-list": { // Create list
-                this.app.state.lists.unshift(message.data);
-
-                this.updateState();
+            case "create-list": {
+                this.dispatch(addList(message.data));
 
                 // Get message callback
                 const callback = this.getMessageCallback(message.callbackId);
@@ -249,28 +229,15 @@ class WebSocketConnection {
                 
                 break;
             }
-            case "remove-list": { // Remove list
-                const lists = this.app.state.lists;
-
-                // Find the list that should be removed 
-                for (let i = 0; i < lists.length; i++) {
-                    if (lists[i]._id === message.data.listId)
-                        lists.splice(i, 1);
-                }
-
-                this.updateState();
+            case "remove-list": {
+                // Remove the list by the list id
+                this.dispatch(removeList({ _id: message.data.listId, localOnly: true }))
 
                 break;
             }
             case "rename-list": {
-                // Find the list that the item should be added to 
-                const list = this.app.state.lists.find(list => list._id === message.data._id);
-
-                list.name = message.data.name;
-
-                this.updateState();
-
-                await window.Utils.setTimeout(); // Wait for the DOM to update
+                // Only rename the list locally to avoid sending another 'rename-list' message
+                this.dispatch(renameList({ ...message.data, localOnly: true }));
 
                 this.blurActiveElementManual(document.getElementById("list-name-input")); // Remove the focus without renaming it
 
@@ -279,171 +246,123 @@ class WebSocketConnection {
 
             // List item
             case "create-list-item": {
+                const { lists } = this.getState().user;
+
                 // Find the list that the item should be added to 
-                const list = this.app.state.lists.find(list => list._id === message.data.listId);
+                const list = Utils.findList(lists, message.data.listId);
 
                 // Add the item to it
-                if (list) {
-                    list.items.push(message.data);
+                this.dispatch(addListItem(message.data));
 
-                    const activeItemId = document.activeElement.id;
-                    const item = window.Utils.findItem(list.items, activeItemId) || {};
-                    const itemLocalText = item.localText;
+                const activeItemId = document.activeElement.id;
+                const item = Utils.findItem(list.items, activeItemId) || {};
+                const itemLocalText = item.localText;
 
-                    this.updateState();
-                    this.resetDrag();
+                //this.resetDrag();
 
-                    const activeElement = document.getElementById(activeItemId); // Get the element that was previously active
+                const activeElement = document.getElementById(activeItemId); // Get the element that was previously active
 
-                    if (!activeElement) return; // Return if no element was previously focused
+                if (!activeElement) return; // Return if no element was previously focused
+        
+                activeElement.focus();
+                //item.text = itemLocalText;
+
+                //this.updateState();
             
-                    activeElement.focus();
-                    item.text = itemLocalText;
-
-                    this.updateState();
-                }
             
                 break;
             }
-            case "remove-list-item": { // Remove list item
-                // Find the list that the item should be added to 
-                const items = this.app.state.lists.find(list => list._id === message.data.listId).items;
+            case "remove-list-item": {
+                const { lists } = this.getState().user;
 
+                const list = Utils.findList(lists, message.data.listId);
+
+                const itemToRemoveId = message.data.itemId;
                 const activeItemId = document.activeElement.id;
 
-                const activeItem = window.Utils.findItem(items, activeItemId) || {};
+                const activeItem = Utils.findItem(list.items, activeItemId) || {};
                 const itemLocalText = activeItem.localText;
 
-                // Find the item and remove it
-                var itemToRemove;
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i]._id === message.data.itemId) {
-                        var itemToRemove = items[i];
-                        
-                        items.splice(i, 1);
-                    }
-                }
-
-                this.updateState();
-
-                // Wait for the initial state change before setting the local text, because for some reason it is overwritten otherwise
+                // Only remove the list item locally
+                this.dispatch(removeListItem({ listId: message.data.listId, _id: message.data.itemId, localOnly: true }));
 
                 const activeElement = document.getElementById(activeItemId);
 
                 // Remove focus from the active element no matter which element it is
                 this.blurActiveElementManual(document.activeElement);
 
-                if (itemToRemove && activeElement) {
-                    // If the active input couldn't be blurred (aka the item that was removed wasn't in focus)
-                    if (!this.blurActiveElementManual(document.getElementById(itemToRemove._id))) {
-                        activeElement.focus();
-
-                        // Set the local text to the local text
-                        activeItem.localText = itemLocalText;
-
-                        this.updateState();
-                    }
+                // Return if no item was in focus
+                if (!itemToRemoveId || !activeElement) return;
+                
+                // If the active input couldn't be blurred (aka the item that was removed wasn't in focus)
+                if (!this.blurActiveElementManual(document.getElementById(itemToRemoveId))) {
+                    // Focus on the previously focused item
+                    activeElement.focus();
+                    
+                    // Set the local text to the previous local text
+                    this.dispatch(renameListItemLocal({ _id: activeItemId, listId: message.data.listId, localText: itemLocalText }))
                 }
 
-                this.resetDrag();
+                //this.resetDrag();
 
                 break;
             }
-            case "update-list-item-state": { // Update list item state
-                const list = this.app.state.lists.find(list => list._id === message.data.listId);
-
-                for (let i = 0; i < list.items.length; i++) {
-                    if (list.items[i]._id === message.data._id) 
-                        list.items[i].completed = message.data.completed;
-                }
-
-                this.updateState();
+            case "update-list-item-state": {
+                // Only toggle the item locally
+                this.dispatch(toggleListItemCompleted({ ...message.data, localOnly: true }))
 
                 break;
             }
-            case "reorder-list-items": { // Reorder the list items
-                const list = window.Utils.findList(this.app.state.lists, message.data._id);
+            case "reorder-list-items": {
+                const lists = this.getState().user.lists;
 
-                const currentItems = list.items.slice();
-                const activeItemId = document.activeElement.id;
+                const activeItemId = document.activeElement ? document.activeElement.id : null;
 
-                const item = window.Utils.findItem(list.items, activeItemId) || {};
+                const list = Utils.findList(lists, message.data._id);
+                const item = Utils.findItem(list.items, activeItemId) || {};
+
+                // Only reorder the items locally
+                this.dispatch(reorderListItems({ itemIds: message.data.items, listId: message.data._id, localOnly: true }));
 
                 const itemLocalText = item.localText;
-
-                // All the ids for the list items are received, not item objects.
-                // So it maps over all item ids, where it returns the found object with the same id
-
-                list.items = message.data.items.map(itemId => window.Utils.findItem(currentItems, itemId));
-
-                this.updateState();
-
-                // Wait for the initial state change before setting the local text, because for some reason it is overwritten otherwise
-
                 const activeElement = document.getElementById(activeItemId);
 
-                // Focus on the previously focused element if it exists
-                if (activeElement && itemLocalText) {
-                    activeElement.focus();
-
-                    // Set the local text to the local text
-                    item.localText = itemLocalText;
-
-                    this.updateState();
-                }
-            
-                break;
-            }
-            case "rename-list-item": { // Reorder the list items
-                const list = this.app.state.lists.find(list => list._id === message.listId);
-
-                const item = list.items.find(item => item._id === message.itemId);
+                // Return if no item was in focus
+                if (!activeElement || !itemLocalText) return;
                 
-                item.text = message.data.text;
-
-                this.updateState();
-
-                await window.Utils.setTimeout(); // Wait for the DOM to update
-
-                this.blurActiveElementManual(document.getElementById(item._id)); // Remove the focus without renaming it
-
+                // Focus on the previously focused item
+                activeElement.focus();
+                
+                // Set the local text to the previous local text
+                this.dispatch(renameListItemLocal({ _id: activeItemId, listId: message.data._id, localText: itemLocalText }))
+            
                 break;
             }
-            case "set-list-items": { // Update the list items
-                const list = this.app.state.lists.filter(list => list._id === message.data._id)[0];
+            case "rename-list-item": {
+                if (!message.success) return;
 
-                for (let i = 0; i < list.items.length; i++) {
-                    // Only update the item if something changed
-                    if (JSON.stringify(list.items[i]) !== JSON.stringify(message.data.items[i])) // Something changed
-                        list.items[i] = message.data.items[i];
-                }
+                // Only rename the item locally
+                this.dispatch(renameListItem({ ...message.data, localOnly: true }))
 
-                this.updateState();
+                this.blurActiveElementManual(document.getElementById(message.data._id)); // Remove the focus without renaming it
 
                 break;
             }
 
-            // Ping Pong
             case "ping": {
-                this.send({
-                    type: "pong"
-                });
+                this.send({ type: "pong" });
             }
             
-            // Default
-            default: {
-
-                break 
-            }
+            default: break 
         }
     }
 
-    send = (data, callback) => {
+    static send = async (data, callback) => {
         // Only send the data if the socket is connected to the server
         if (this.socket.readyState === this.socket.OPEN) {
-            data.callbackId = window.Utils.createId(20); // Generate an id for the message to be able to keep track of callbacks
+            data.callbackId = Utils.createId(20); // Generate an id for the message to be able to keep track of callbacks
 
-            if (data.type !=="pong") console.log("Sending message '%s'", data.type, data);
+            if (data.type !== "pong") console.log("Sending message '%s'", data.type, data);
 
             // Save the callback
             this.callbacks.set(data.callbackId, callback);
@@ -455,14 +374,18 @@ class WebSocketConnection {
         }
     }
 
-    getMessageCallback = (callbackId) => {
+    static getMessageCallback = (callbackId) => {
         // Get the stored callback for this message
         return this.callbacks.get(callbackId) || (() => {});
     } 
 
-    updateState = () => this.app.setState(this.app.state);
+    static getState = () => this.store.getState();
 
-    resetDrag = () => {
+    static dispatch = (state) => this.store.dispatch(state);
+
+    static updateState = () => this.app.setState(this.app.state);
+
+    static resetDrag = () => {
         this.app.state.resetDrag = true;
         this.updateState();
 
@@ -470,7 +393,7 @@ class WebSocketConnection {
         this.updateState();
     }
 
-    blurActiveElementManual = (targetElement) => {
+    static blurActiveElementManual = (targetElement) => {
         // Remove focus from the active input element
 
         // Dispatch a custom 'blur' event manually so the rename list / list item function isn't triggered
@@ -484,6 +407,21 @@ class WebSocketConnection {
 
         return false;
     }
+
+    static login = (pin = localStorage.getItem("pin"), callback) => {
+        const state = this.getState();
+
+        // Don't send multiple login messages at the same time
+        if (this.isLoggingIn) return false;
+
+        // Don't login again
+        if (state.user.loggedIn && parseInt(pin) === state.user.pin)
+            return true;
+
+        this.isLoggingIn = true;
+
+        this.send({ type: "login", pin: pin }, callback);
+    }
 }
 
-export default WebSocketConnection;
+export default window.webSocketConnection || WebSocketConnection;

@@ -1,44 +1,57 @@
 import React from 'react';
 
+import { connect } from 'react-redux'
+
 import { Link } from "react-router-dom";
 
 import Button from '@material-ui/core/Button';
 
 import InvalidPinSnackbar from '../InvalidPinSnackbar';
+import OfflineSnackbar from './OfflineSnackbar';
+import WebSocketConnection from '../../WebSocketConnection';
+
+import { setShowInvalidPinSnackbar } from '../../redux/showInvalidPinSnackbar'
 
 import history from '../../history';
 
 import '../../css/Login.css';
 
-const LoginPage = ({ pin, enterPin, login, isOffline, showInvalidPinSnackbar, setShowInvalidPinSnackbar }) => {
+const LoginPage = ({ pin, isOffline }) => {
     const enterPinClick = () => {
         const pin = window.prompt("Skriv in PIN");
 
-        if (pin) enterPin(pin);
+        if (pin) {
+            WebSocketConnection.login(pin, ({ success }) => {
+                if (!success) return;
+    
+                localStorage.setItem("pin", pin);
+    
+                history.push("/home");
+            });
+        };
     }
 
     const loginClick = (event) => {
         event.preventDefault();
 
         const toHome = (success) => {
+            console.log("to home", success)
             if (success) history.push("/home");
-            
+
             setShowInvalidPinSnackbar(!success);
         }
-        
+
+        console.log("LOGIN", WebSocketConnection.login(pin, toHome))
+
         // If already logged in
-        if (login(pin, toHome)) // Go to home when logged in
+        if (WebSocketConnection.login(pin, toHome)) // Go to home when logged in
             toHome(true); // Go to home if already logged in
     }
 
-    console.log("show", showInvalidPinSnackbar)
-
     return (
         <>
-            <InvalidPinSnackbar 
-                isOpen={showInvalidPinSnackbar} 
-                setOpen={setShowInvalidPinSnackbar} 
-                login={login} />
+            <InvalidPinSnackbar />
+            <OfflineSnackbar />
 
             <div className="loginContainer">
                 <h1 className="pin-title">Kontots PIN</h1>
@@ -49,18 +62,18 @@ const LoginPage = ({ pin, enterPin, login, isOffline, showInvalidPinSnackbar, se
                 </p>
 
                 <div id="button-container">
-                    <Button 
-                        variant="contained" 
-                        className="button" 
-                        component={Link} 
+                    <Button
+                        variant="contained"
+                        className="button"
+                        component={Link}
                         to="/home"
                         disabled={(!pin || isOffline) ? true : false}
                         onClick={loginClick}>
                         Fortsätt
                     </Button>
-                    <Button 
-                        variant="contained" 
-                        className="button" 
+                    <Button
+                        variant="contained"
+                        className="button"
                         disabled={(!pin || isOffline) ? true : false}
                         onClick={enterPinClick}>
                         Skriv in annan kod
@@ -71,4 +84,12 @@ const LoginPage = ({ pin, enterPin, login, isOffline, showInvalidPinSnackbar, se
     );
 }
 
-export default LoginPage;
+const mapStateToProps = state => ({ 
+    showInvalidPinSnackbar: state.showInvalidPinSnackbar, 
+    isOffline: state.offline,
+    pin: state.user.pin 
+});
+
+const mapDispatch = { setShowInvalidPinSnackbar }
+
+export default connect(mapStateToProps, mapDispatch)(LoginPage);

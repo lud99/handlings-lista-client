@@ -51,6 +51,8 @@ header .title input {
 header .editButton {
     margin-left: auto;
     margin-right: 0px;
+
+    transition: color 0.25s;
 }
 
 header .readOnly {
