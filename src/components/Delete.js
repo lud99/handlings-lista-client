@@ -3,6 +3,7 @@ import React from 'react';
 import { IconButton } from '@material-ui/core';
 
 import DeleteIcon from '@material-ui/icons/Delete';
+import Grow from '@material-ui/core/Grow';
 
 const Delete = ({ style, onClick, enabled, className }) => {
     const click = (event) => {
@@ -12,11 +13,11 @@ const Delete = ({ style, onClick, enabled, className }) => {
     }
 
     return (
-        <>
-            { enabled && <IconButton edge="end" className={`listItemDelete ${className}`} color="inherit" aria-label="delete" style={style} onClick={click}>
+        <Grow in={enabled}>
+            <IconButton edge="end" className={className} color="inherit" aria-label="delete" style={style} onClick={click}>
                 <DeleteIcon />
-            </IconButton> }     
-        </>
+            </IconButton> 
+        </Grow>    
     )
 }
 

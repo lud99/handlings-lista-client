@@ -6,7 +6,7 @@ import { createListItem } from '../../redux/user';
 
 import Input from '../Input';
 
-const AddItem = ({ refs, listId, pin, createListItem }) => {
+const AddItem = ({ listId,  createListItem }) => {
     const [inputValue, setInputValue] = useState("");
 
     const input = useRef(null);
@@ -14,7 +14,7 @@ const AddItem = ({ refs, listId, pin, createListItem }) => {
     const addItem = (event) => {
         if (event) event.preventDefault(); // Prevent form submission
 
-        if (inputValue !== "") createListItem({ listId, pin, text: inputValue });
+        if (inputValue !== "") createListItem({ listId,  text: inputValue });
 
         setInputValue("");
 
@@ -22,7 +22,7 @@ const AddItem = ({ refs, listId, pin, createListItem }) => {
     }
 
     return (
-        <div className="add-item-container" ref={refs.addItemContainer}>
+        <div className="add-item-container">
             <form onSubmit={event => addItem(event)}>
                 <Input placeholder="Föremål" value={inputValue} onChange={event => setInputValue(event.target.value)} ref={input} autoCapitalize="on"/>
 
@@ -35,7 +35,8 @@ const AddItem = ({ refs, listId, pin, createListItem }) => {
 }
 
 const mapStateToProps = state => ({ 
-    pin: state.user.pin
+    pin: state.user.pin,
+    listId: state.currentList
 });
 
 const mapDispatch = { createListItem }

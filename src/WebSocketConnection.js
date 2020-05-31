@@ -10,6 +10,7 @@ import {
 import { setShouldLoad } from './redux/shouldLoad';
 import { setShowInvalidPinSnackbar } from './redux/showInvalidPinSnackbar';
 import { setOffline } from './redux/offline';
+import { setResetDrag } from './redux/resetDrag';
 
 class WebSocketConnection {
     static init = (url = this.url, app = this.app, store = this.store, connectionCallback = () => {}) => {
@@ -40,7 +41,7 @@ class WebSocketConnection {
         this.checkingConnection = false;
         this.isLoggingIn = false;
 
-        this.toSend = null;
+        this.toSend = [];
 
         this.callbacks = new Map();
         
@@ -58,7 +59,9 @@ class WebSocketConnection {
                 });
             }
 
-            if (this.toSend) this.send(this.toSend);
+            this.toSend.forEach(({ message, callback }) => this.send(message, callback));
+
+            this.toSend = [];
 
             const savedPin = localStorage.getItem("pin");
 
@@ -178,6 +181,8 @@ class WebSocketConnection {
                 // Set the user (and all their lists and items) and pin
                 this.dispatch(setUser(message.data));
 
+                this.dispatch(setShouldLoad(false));
+
                 localStorage.setItem("pin", message.data.pin);
 
                 break;
@@ -195,12 +200,11 @@ class WebSocketConnection {
 
                 const pin = message.data.userPin;
 
-                this.app.state.lists = [message.data];
-                this.app.state.pin = pin;
+                this.dispatch(setLists([message.data]));
                 this.dispatch(setPin(pin));
+                this.dispatch(setShouldLoad(false));
+                this.dispatch(setLoggedIn(false));
 
-                this.updateState();
-                
                 // Run the callback
                 callback(message);
 
@@ -245,31 +249,32 @@ class WebSocketConnection {
             }
 
             // List item
-            case "create-list-item": {
+            case "create-list-item": { // TODO
                 const { lists } = this.getState().user;
 
                 // Find the list that the item should be added to 
                 const list = Utils.findList(lists, message.data.listId);
 
-                // Add the item to it
-                this.dispatch(addListItem(message.data));
-
                 const activeItemId = document.activeElement.id;
                 const item = Utils.findItem(list.items, activeItemId) || {};
                 const itemLocalText = item.localText;
 
-                //this.resetDrag();
+                // Add the item to it
+                this.dispatch(addListItem(message.data));
+
+                this.resetDrag();
 
                 const activeElement = document.getElementById(activeItemId); // Get the element that was previously active
 
-                if (!activeElement) return; // Return if no element was previously focused
-        
-                activeElement.focus();
-                //item.text = itemLocalText;
-
-                //this.updateState();
-            
-            
+                // Only run if an item was in focus
+                if (activeElement) {
+                    // Focus on the previously focused item
+                    activeElement.focus();
+                    
+                    // Set the local text to the previous local text
+                    this.dispatch(renameListItemLocal({ _id: activeItemId, listId: message.data.listId, localText: itemLocalText }))
+                }
+               
                 break;
             }
             case "remove-list-item": {
@@ -291,19 +296,19 @@ class WebSocketConnection {
                 // Remove focus from the active element no matter which element it is
                 this.blurActiveElementManual(document.activeElement);
 
-                // Return if no item was in focus
-                if (!itemToRemoveId || !activeElement) return;
-                
-                // If the active input couldn't be blurred (aka the item that was removed wasn't in focus)
-                if (!this.blurActiveElementManual(document.getElementById(itemToRemoveId))) {
-                    // Focus on the previously focused item
-                    activeElement.focus();
-                    
-                    // Set the local text to the previous local text
-                    this.dispatch(renameListItemLocal({ _id: activeItemId, listId: message.data.listId, localText: itemLocalText }))
+                // Only run if an item was in focus
+                if (itemToRemoveId && activeElement) {
+                    // If the active input couldn't be blurred (aka the item that was removed wasn't in focus)
+                    if (!this.blurActiveElementManual(document.getElementById(itemToRemoveId))) {
+                        // Focus on the previously focused item
+                        activeElement.focus();
+                        
+                        // Set the local text to the previous local text
+                        this.dispatch(renameListItemLocal({ _id: activeItemId, listId: message.data.listId, localText: itemLocalText }))
+                    }
                 }
 
-                //this.resetDrag();
+                this.resetDrag();
 
                 break;
             }
@@ -370,7 +375,7 @@ class WebSocketConnection {
             // Send it
             this.socket.send(JSON.stringify(data));
         } else { 
-            this.toSend = data; // Queue the data
+            this.toSend.push({ message: data, callback: callback }); // Queue the data
         }
     }
 
@@ -383,14 +388,10 @@ class WebSocketConnection {
 
     static dispatch = (state) => this.store.dispatch(state);
 
-    static updateState = () => this.app.setState(this.app.state);
+    static resetDrag = async () => {
+        this.dispatch(setResetDrag(true));
 
-    static resetDrag = () => {
-        this.app.state.resetDrag = true;
-        this.updateState();
-
-        this.app.state.resetDrag = false;
-        this.updateState();
+        this.dispatch(setResetDrag(false));
     }
 
     static blurActiveElementManual = (targetElement) => {
@@ -410,6 +411,8 @@ class WebSocketConnection {
 
     static login = (pin = localStorage.getItem("pin"), callback) => {
         const state = this.getState();
+
+        console.log(state, pin, this.isLoggingIn)
 
         // Don't send multiple login messages at the same time
         if (this.isLoggingIn) return false;

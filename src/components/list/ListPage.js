@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 import { connect } from 'react-redux'
+import { useSelector } from 'react-redux'
+import { getCurrentList, setCurrentListId } from '../../redux/currentList';
+import { getList } from '../../redux/user';
+import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';
 
 import Header from '../header/Header';
 import List from './List';
@@ -9,79 +13,63 @@ import LoadingBackdrop from '../LoadingBackdrop';
 import ReadOnlySnackbar from '../ReadOnlySnackbar';
 import InvalidPinSnackbar from '../InvalidPinSnackbar';
 import WebSocketConnection from '../../WebSocketConnection';
-import Utils from '../../Utils';
 
 import history from '../../history';
 
-import '../../css/List.css';
+import './List.css';
 import { Redirect } from 'react-router-dom';
 
 const ListPage = (props) => {
     // Destructure the props
     const { 
-        lists,
         listId, 
-        getList,
         shouldLoad, 
-        showReadOnlySnackbar, 
         setShowReadOnlySnackbar,
-        isViewOnly, 
-        setIsViewOnly } = props;
+        viewOnly,
+        setCurrentListId } = props;
 
-    const list = Utils.findList(lists, listId);
+    useEffect(() => { setCurrentListId(listId) }, [])
 
-    const refs = {
-        input: React.createRef(),
-        addItemContainer: React.createRef(),
-        list: React.createRef(),
-    }
+    const list = useSelector(getCurrentList);
 
     useEffect(() => {
-        WebSocketConnection.login();
-
         // Load the list if in view only mode (only this list)
-        if (isViewOnly) {
-            getList(listId);
+        if (viewOnly) {
+            // Get the list
+            WebSocketConnection.send({
+                type: "get-list", 
+                listId: listId, 
+                joinSession: true 
+            });
 
             setShowReadOnlySnackbar(true); 
+        } else {
+            // Otherwise login
+            WebSocketConnection.login();
         }
     }, []);
 
-    const invalidPinOnClose = () => isViewOnly && setShowReadOnlySnackbar(true); 
+    const invalidPinOnClose = () => viewOnly && setShowReadOnlySnackbar(true); 
 
-    const onInvalidPinLogin = ({ success }) => success && history.push(`/list/${list._id}`)
+    const onLogin = ({ success }) => success && history.push(`/list/${list._id}`)
 
     return (
         <>
-            { !list && <Redirect to="/home" /> }
+            { /*!list && <Redirect to="/home" /> */}
             
             { shouldLoad && <LoadingBackdrop isEnabled={true} /> }
 
             { list &&
             
             <>
-                <Header 
-                    title={list.name} 
-                    listId={list._id} 
-                    useEditButton={true} 
-                    useRenameList={true}                    
-                    {...props} />
+                <Header useEditButton={true} useRenameList={true} />
+                <List />
 
-                <List list={list} {...props} />
+                { !viewOnly && <AddItem /> }
 
-                <AddItem refs={refs} listId={list._id} />
-
-                { isViewOnly ? 
-            
-                <InvalidPinSnackbar 
-                    onClose={invalidPinOnClose} 
-                    onLogin={onInvalidPinLogin} /> :
+                <InvalidPinSnackbar onClose={invalidPinOnClose} onLogin={onLogin} /> 
                     
-                !shouldLoad && <ReadOnlySnackbar 
-                    isOpen={showReadOnlySnackbar} 
-                    setOpen={setShowReadOnlySnackbar}
-                    listId={list._id}
-                    setIsViewOnly={setIsViewOnly} /> 
+                { !shouldLoad && <ReadOnlySnackbar /> } 
                 }
             </>
         }
@@ -91,9 +79,11 @@ const ListPage = (props) => {
 
 const mapStateToProps = state => ({ 
     lists: state.user.lists,
-    shouldLoad: state.shouldLoad
+    shouldLoad: state.shouldLoad,
+    viewOnly: state.viewOnly,
+    showReadOnlySnackbar: state.showReadOnlySnackbar
 });
 
-const mapDispatch = {  }
+const mapDispatch = { setCurrentListId, setShowReadOnlySnackbar }
 
 export default connect(mapStateToProps, mapDispatch)(ListPage);

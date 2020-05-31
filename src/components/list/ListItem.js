@@ -4,6 +4,7 @@ import { ListItem, ListItemText, Divider, IconButton } from '@material-ui/core';
 import { toggleListItemCompleted, removeListItem } from '../../redux/user';
 import { connect } from 'react-redux'
 
+import Grow from '@material-ui/core/Grow';
 import DragHandle from '@material-ui/icons/DragHandle';
 import EditIcon from '@material-ui/icons/Edit';
 
@@ -11,23 +12,65 @@ import Text from './ListItemText';
 import Delete from '../Delete';
 import Utils from '../../Utils';
 
-const Item = (props) => {
-    const { _id, listId, text, completed } = props;
+const Item = (props) => { 
+    const { _id, text, listId, completed } = props.item;
 
-    const { toggleListItemCompleted, isViewOnly, snapshot, provided, removeListItem, hideDeleteIcon } = props;
+    const { toggleListItemCompleted, editMode, viewOnly, snapshot, provided, removeListItem } = props;
 
     const editIconElement = useRef();
     const nameInput = useRef();
 
-    const click = () => toggleListItemCompleted({ _id, listId }); 
+    const click = () => !viewOnly && toggleListItemCompleted({ _id, listId }); 
     const remove = () => removeListItem({ _id, listId });
     const focusOnText = () => nameInput.current.focus();
 
     const textFormatted = Utils.capitalize(text);
-    const editMode = snapshot !== null;
+
+    const ref = provided && provided.innerRef;
+    const draggableProps = provided && provided.draggableProps;
+    const dragHandleProps = provided && provided.dragHandleProps;
+    const listItemHandleProps = viewOnly && dragHandleProps;
+    const isDragging = snapshot && snapshot.isDragging;
+
+    // Restrict movement to the y-axis only
+    if (provided.draggableProps.style.transform) {
+        try {
+            const y = provided.draggableProps.style.transform.split(", ")[1].split(")")[0];
+            provided.draggableProps.style.transform = `translate(0px, ${y})`;
+        } catch {}
+    }
+
+    return (
+        <>
+            <div className="listItem" ref={ref} {...draggableProps} {...listItemHandleProps}>
+                <ListItem button style={styles.item(isDragging, completed)} onClick={click}>
+                    { editMode ? 
+                    
+                    <Text item={props.item} ref={nameInput} editIconElement={editIconElement} /> :
+                    <ListItemText primary={textFormatted} className="listItemText" /> }
+
+                    { !viewOnly && <div className="editContainer">
+                        <Handle enabled={!editMode} dragHandle={dragHandleProps} /> 
+                        <ItemEdit enabled={editMode} text={textFormatted} ref={editIconElement} onClick={focusOnText} />
+                        <Delete enabled={editMode} className="listItemDelete" onClick={remove} />
+                    </div> }
+                </ListItem>
+                <Divider style={styles.divider(completed)} />
+            </div>
+        </>
+    )
+
+    /*<ListItem button style={styles.item(false, completed, editMode)}>
+                    <Text {...props} ref={nameInput} editIconElement={editIconElement}/>
+                    <div style={{ whiteSpace: "nowrap" }}>
+                        <ItemEdit text={textFormatted} ref={editIconElement} onClick={focusOnText} /> 
+                        <Delete onClick={remove} style={styles.deleteIcon(hideDeleteIcon)} {...props} />
+                    </div>
+                </ListItem>
+            <Divider style={styles.divider(completed)} /> */
 
     // Make the item draggable if not in view only and the correct props exist
-    if (snapshot && !isViewOnly) { 
+    /*if (snapshot && !isViewOnly) { 
         // Only allow vertical dragging
         if (provided.draggableProps.style.transform) {
             try {
@@ -68,32 +111,32 @@ const Item = (props) => {
                 <Divider style={styles.divider(completed)} />
             </div>
         );  
-    }
+    }*/
 };
 
-Item.defaultProps = {
-    hideDeleteIcon: false
-}
-
-const Handle = (props) => {
+var Handle = ({ enabled, dragHandle}) => {
     const click = (event) => event.stopPropagation();
 
     return (
-        <IconButton edge="end" className="listItemHandle" color="inherit" aria-label="move" onClick={click} {...props}>
-            <DragHandle />
-        </IconButton>
+        <Grow in={enabled}{...dragHandle}>
+            <IconButton edge="end" className="listItemHandle" color="inherit" aria-label="move" onClick={click} >
+                <DragHandle />
+            </IconButton>
+        </Grow>
     )
 }
 
-const ItemEdit = forwardRef(({ onClick }, ref) => (
-    <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" onClick={onClick} ref={ref}>
-        <EditIcon  /> 
-    </IconButton>
+const ItemEdit = forwardRef(({ onClick, enabled }, ref) => (
+    <Grow in={enabled} >
+        <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" onClick={onClick} ref={ref}>
+            <EditIcon  /> 
+        </IconButton>
+    </Grow>
 ));
 
 class ItemHandler extends Component {
     shouldComponentUpdate(nextProps) {
-        const props = this.props;
+        /*const props = this.props;
 
         // Don't rerender if neither the completed state, the text has changed, the drag position has changed or the items drag state has changed
         if (props.provided) {
@@ -114,7 +157,7 @@ class ItemHandler extends Component {
 
             return false
         }
-    
+    */
 
         return true;
     }
@@ -140,10 +183,10 @@ const styles = {
 }
 
 const mapStateToProps = state => ({ 
-    lists: state.user.lists,
-    pin: state.user.pin 
+    editMode: state.editMode,
+    viewOnly: state.viewOnly
 });
 
 const mapDispatch = { toggleListItemCompleted, removeListItem }
 
-export default connect(mapStateToProps, mapDispatch)(ItemHandler);
+export default connect(mapStateToProps, mapDispatch)(Item);

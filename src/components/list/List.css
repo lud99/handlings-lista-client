@@ -122,6 +122,8 @@ input[type="text"]:focus {
     height: 100%;
 
     padding: 0px;
+
+    display: flex;
 }
 
 .listItemText.MuiListItemText-root, .listItemNameInput {
@@ -141,9 +143,9 @@ input[type="text"]:focus {
 
 .listItemNameInput {
     width: calc(100% - 1.5rem);
-    height: calc(100% - 4px);
+    height: calc(100% - 2px);
 
-    padding-top: 1.5px;
+    padding-top: 0;
 }
 
 .listItemText.MuiListItemText-root:focus, .listItemNameInput:focus {
@@ -157,22 +159,54 @@ input[type="text"]:focus {
     text-overflow: ellipsis;
 }
 
-.listItemHandle.MuiIconButton-root {
+.listItem .editContainer {
+    min-width: 88px;
+    height: 40px;
+
+    white-space: nowrap;
+    position: relative;
+}
+
+.listItem .editContainer[opacity=0] {
+    display: none;
+}
+.listItem .editContainer[opacity=1] {
+    display: inline-block;
+}
+
+.listItemHandle.MuiIconButton-root {    
+    color: #5d5c5c;
+
     padding: 0.5rem;
     margin-right: 0;
-    color: #5d5c5c;
+
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .listItemDelete.MuiIconButton-root {
+    color: #5d5c5c;
+
     padding: 0.5rem;
     margin-right: 0;
-    color: #5d5c5c;
+
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 .MuiListItem-root .editButton {
     color: #5d5c5c;
 
     padding: 0.5rem;
     margin-right: 0.5rem;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
 }
 
 @media only screen and (max-height: 650px) {

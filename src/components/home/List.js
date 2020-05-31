@@ -33,7 +33,7 @@ const List = ({ list, editMode, removeList }) => {
                 <div className="listBottomRow" style={styles.bottomRow(editMode)}>
                     <ListItemsPreview items={list.items} /> 
                 </div>
-                { editMode && <Delete className="homeListDelete" onClick={() => removeList({ _id: list._id })}/> }
+                <Delete className="homeListDelete" enabled={editMode} onClick={() => removeList({ _id: list._id })}/>
             </ListItem>
 
             <Divider style={styles.divider} />
@@ -50,7 +50,7 @@ const styles = {
         paddingRight: "0.5rem",
         flexWrap: "wrap"
     },
-    topRow: (editMode) => ({ width: editMode ? "calc(100% - 44px)" : "100%" }),
+    topRow: (editMode) => ({ width: editMode ? "calc(100% - 48px)" : "100%" }),
     date: (editMode) => ({ marginRight: editMode ? "0.5rem" : ""}),
     bottomRow: (editMode) => ({ width: editMode ? "calc(100% - 44px)" : "95%" }), 
     divider: { marginLeft: "1rem" },

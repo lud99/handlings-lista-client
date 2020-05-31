@@ -1,6 +1,6 @@
-import WebSocketConnection from '../WebSocketConnection';
+import WebSocketConnection from '../../WebSocketConnection';
 
-import Utils from '../Utils';
+import Utils from '../../Utils';
 
 const setLocalTextInLists = (lists) => (
     lists.map(list => (
@@ -77,11 +77,9 @@ const reducers = {
     },
     toggleListItemCompleted: (state, action) => {
         const list = Utils.findList(state.lists, action.payload.listId);
-
         if (!list) return state;
 
         const item = Utils.findItem(list.items, action.payload._id);
-
         if (!item) return state;
 
         if (!action.payload.localOnly) {
@@ -96,6 +94,11 @@ const reducers = {
         item.completed = action.payload.completed === undefined ? !item.completed : action.payload.completed;
     },
     reorderListItems: (state, { payload }) => {
+        const list = Utils.findList(state.lists, payload.listId);
+
+        if (JSON.stringify(list.items) === JSON.stringify(payload.reorderedItems))
+            return state;
+
         if (!payload.localOnly) {
             WebSocketConnection.send({
                 type: "reorder-list-items",
@@ -105,8 +108,6 @@ const reducers = {
                 itemNewPositionIndex: payload.destinationIndex,
             }); 
         }
-
-        const list = Utils.findList(state.lists, payload.listId);
 
         // Set the items directly
         if (payload.reorderedItems)

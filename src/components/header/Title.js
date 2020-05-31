@@ -1,25 +1,21 @@
 import React from 'react';
 
-import { connect } from 'react-redux'
 import { Typography } from '@material-ui/core';
-
-// TODO: rename list
 
 import TitleInput from './TitleInput';
 
-const Title = ({ titleFormatted, listId, useRenameList, editMode, isViewOnly }) => {  
+const Title = ({ titleFormatted, useRenameList, editMode, isViewOnly }) => {  
     return (
         <Typography variant="h6" className="title" style={styles.title(isViewOnly)}>
             { (editMode && useRenameList) ? 
                 // Input
-                <TitleInput title={titleFormatted} listId={listId} /> :
+                <TitleInput title={titleFormatted} /> :
                 // Static text
                 titleFormatted
             }
         </Typography>
     )
 }
-
 
 const styles = {
     title: (isViewOnly) => ({

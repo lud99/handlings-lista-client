@@ -1,8 +1,12 @@
 import React from 'react';
 
 import { connect } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import { toggleEditMode } from '../../redux/editMode';
+import { getCurrentList } from '../../redux/currentList';
+import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';  
+import { setShowInvalidPinSnackbar } from '../../redux/showInvalidPinSnackbar';  
 
 import BackIcon from '@material-ui/icons/ArrowBack';
 import EditIcon from '@material-ui/icons/Edit';
@@ -15,14 +19,16 @@ import './Header.css';
 
 const Header = (props) => {
     const { 
-        list,
         title,
         useEditButton, 
+        useRenameList,
         editMode, 
         toggleEditMode, 
         setShowReadOnlySnackbar, 
         setShowInvalidPinSnackbar,
-        isViewOnly } = props;
+        viewOnly } = props;
+
+    const list = useSelector(getCurrentList);
 
     const pageUrlLayout = [
         "/login",
@@ -57,23 +63,23 @@ const Header = (props) => {
     return (
         <AppBar position="static">
             <Toolbar>
-                { !isViewOnly && <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
+                { !viewOnly && <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
                     <BackIcon />
                 </IconButton> }
 
-                <Title titleFormatted={titleFormatted} {...props} />
+                <Title titleFormatted={titleFormatted} editMode={editMode} useRenameList={useRenameList} />
 
-                { (!isViewOnly && useEditButton) && 
+                { (!viewOnly && useEditButton) && 
                     <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
                         <EditIcon />
                     </IconButton> 
                 }
 
-                { isViewOnly && <div onClick={openReadOnlySnackbar}>
-                    <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only">
+                { viewOnly &&
+                    <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={openReadOnlySnackbar}>
                         <LockIcon />
                     </IconButton> 
-                </div>
+                
                 }
             </Toolbar>
         </AppBar>
@@ -89,9 +95,10 @@ const styles = {
 }
 
 const mapStateToProps = state => ({
-    editMode: state.editMode
+    editMode: state.editMode,
+    viewOnly: state.viewOnly,
 })
 
-const mapDispatch = { toggleEditMode: () => toggleEditMode() };
+const mapDispatch = { toggleEditMode: () => toggleEditMode(), setShowReadOnlySnackbar, setShowInvalidPinSnackbar };
 
 export default connect(mapStateToProps, mapDispatch)(Header);

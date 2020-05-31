@@ -43,6 +43,10 @@ const TitleInput = ({ title, renameList, listId }) => {
     )
 }
 
+const mapStateToProps = state => ({
+    listId: state.currentList
+})
+
 const mapDispatch = { renameList }
 
-export default connect(null, mapDispatch)(TitleInput);
+export default connect(mapStateToProps, mapDispatch)(TitleInput);

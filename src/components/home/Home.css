@@ -5,6 +5,8 @@
     justify-content: space-between;
 
     padding-right: 0;
+
+    transition: all 0.25s;
 }
 .listTopRow .listTopRowRight {
     flex-wrap: nowrap;
@@ -38,9 +40,13 @@
 }
 
 .homeListDelete.MuiIconButton-root {
-    padding: 0.65rem;
+    color: #5d5c5c;
+
+    padding: 0.75rem;
+
     position: absolute;
     right: 0.5rem;
+    margin-right: 0;
 }
 
 .listItemsPreview {
@@ -61,6 +67,8 @@
 }
 .listItemsPreview li span {
     position: relative;
+
+    transition: color 150ms;
 }
 
 .listSecondaryContainer {

@@ -1,12 +1,14 @@
 import React, { useState, useEffect, forwardRef } from 'react';
 
-import { toggleListItemCompleted, renameListItem, renameListItemLocal } from '../../redux/user';
+import { renameListItem, renameListItemLocal } from '../../redux/user';
 import { connect } from 'react-redux'
 
 import Input from '../Input';
 import Utils from '../../Utils';
 
-const Text = forwardRef(({ listId, _id, text, localText, renameListItem, renameListItemLocal, editIconElement }, inputElement) => {
+const Text = forwardRef(({ item, renameListItem, renameListItemLocal, editIconElement }, inputElement) => {
+    const { listId, _id, text, localText } = item;
+
     const [canRename, setCanRename] = useState(true);
 
     const [inputText, setInputText] = [
@@ -71,6 +73,6 @@ const mapStateToProps = state => ({
     list: state.user.currentList,
 });
 
-const mapDispatch = { toggleListItemCompleted, renameListItem, renameListItemLocal }
+const mapDispatch = { renameListItem, renameListItemLocal }
 
 export default connect(mapStateToProps, mapDispatch, null, { forwardRef: true })(Text);
