@@ -412,8 +412,6 @@ class WebSocketConnection {
     static login = (pin = localStorage.getItem("pin"), callback) => {
         const state = this.getState();
 
-        console.log(state, pin, this.isLoggingIn)
-
         // Don't send multiple login messages at the same time
         if (this.isLoggingIn) return false;
 

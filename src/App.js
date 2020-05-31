@@ -4,6 +4,7 @@ import { Router, Switch, Route, Redirect } from "react-router-dom";
 
 import { logout } from './redux/user';
 import { setViewOnly } from './redux/viewOnly';
+import { setCurrentListId } from './redux/currentList';
 
 import history from './history';
 import WebSocketConnection from './WebSocketConnection';
@@ -55,9 +56,7 @@ class App extends Component {
                     <Route path="/login/:pin" exact render={(context) => {
                         const pin = context.match.params.pin;
 
-                        this.socket.login(pin, ({ success }) => {
-                            console.log(success);
-                            success && history.push("/home")});
+                        this.socket.login(pin, ({ success }) => success && history.push("/home"));
                     }} />
 
                     <Route path="/home" exact render={() => (
@@ -68,6 +67,7 @@ class App extends Component {
                         const listId = context.match.params.id;
 
                         this.store.dispatch(setViewOnly(false));
+                        this.store.dispatch(setCurrentListId(listId));
 
                         return <ListPage listId={listId} />
                     }}>

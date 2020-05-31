@@ -16,8 +16,6 @@ const InvalidPinSnackbar = ({ isOpen, setOpen, onClose, onLogin = ({ success }) 
         if (reason === 'clickaway')
             return;
 
-        console.log("should close")
-
         setOpen(false);
 
         if (onClose) onClose();

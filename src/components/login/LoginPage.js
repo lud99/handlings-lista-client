@@ -35,13 +35,10 @@ const LoginPage = ({ pin, isOffline }) => {
         event.preventDefault();
 
         const toHome = (success) => {
-            console.log("to home", success)
             if (success) history.push("/home");
 
             setShowInvalidPinSnackbar(!success);
         }
-
-        console.log("LOGIN", WebSocketConnection.login(pin, toHome))
 
         // If already logged in
         if (WebSocketConnection.login(pin, toHome)) // Go to home when logged in

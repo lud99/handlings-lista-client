@@ -51,11 +51,11 @@ const ListPage = (props) => {
 
     const invalidPinOnClose = () => viewOnly && setShowReadOnlySnackbar(true); 
 
-    const onLogin = ({ success }) => success && history.push(`/list/${list._id}`)
+    const onLogin = ({ success }) => success && history.push(`/list/${list._id}`);
 
     return (
         <>
-            { /*!list && <Redirect to="/home" /> */}
+            { !list && !shouldLoad && <Redirect to="/home" /> }
             
             { shouldLoad && <LoadingBackdrop isEnabled={true} /> }
 
@@ -70,7 +70,6 @@ const ListPage = (props) => {
                 <InvalidPinSnackbar onClose={invalidPinOnClose} onLogin={onLogin} /> 
                     
                 { !shouldLoad && <ReadOnlySnackbar /> } 
-                }
             </>
         }
         </>
