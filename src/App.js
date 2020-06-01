@@ -21,7 +21,7 @@ class App extends Component {
 
         this.store = props.store;
 
-        this.dev =true// process.env.NODE_ENV !== "production";
+        this.dev = process.env.NODE_ENV !== "production";
 
         const storedUrl = window.localStorage.getItem("url");
 
