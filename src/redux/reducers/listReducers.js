@@ -25,7 +25,7 @@ const reducers = {
         WebSocketConnection.send({
             type: "create-list",
             name: action.payload.name,
-            pin: action.state.pin
+            pin: state.pin
         });
 
         return state;
@@ -40,10 +40,10 @@ const reducers = {
                 pin: state.pin,
                 listId: action.payload._id,
             });
+        } else { // Only remove the list when not sending to the server to avoid double deletion
+            // Find the index of the list in the array, then remove it 
+            state.lists.splice(state.lists.indexOf(Utils.findList(state.lists, action.payload._id)), 1);
         }
-
-        // Find the index of the list in the array, then remove it 
-        state.lists.splice(state.lists.indexOf(Utils.findList(state.lists, action.payload._id)), 1);
     },
     renameList: (state, action) => {
         // Find the list in the array, then rename it 

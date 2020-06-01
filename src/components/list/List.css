@@ -110,7 +110,23 @@ input[type="text"]:focus {
 .list .listItem {
     color: #000;
     height: 3rem;
+
+    /*animation-name: list-item-grow;
+    animation-duration: 1s;
+    animation-direction: reverse;*/
 }
+/*
+@keyframes list-item-grow {
+    from {
+        transform: scale(0, 0);
+    }
+
+    to {
+        transform: scale(1, 1);
+    }
+}*/
+
+
 .list .listItem > div {
     height: 100%;
 
@@ -151,6 +167,10 @@ input[type="text"]:focus {
 .listItemText.MuiListItemText-root:focus, .listItemNameInput:focus {
     border: none;
     outline: none;
+}
+
+.abc {
+    opacity: 1 !important;
 }
 
 .listItemText.MuiListItemText-root span {

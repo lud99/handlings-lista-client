@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { createSelector } from 'reselect'
 
 import WebSocketConnection from '../WebSocketConnection';
 
@@ -39,6 +40,18 @@ const userSlice = createSlice({
         ...listItemReducers
     }
 });
+
+const getLists = state => state.user.lists;
+const getItemId = (state, props) => props.id;
+
+export const makeGetListItemFromId = () => {
+    return createSelector(
+        [getLists, getItemId],
+        (lists, id) => {
+            return lists && lists.map(list => list.items.find(item => item._id === id)).filter(e => !!e)[0];
+        }
+    )
+}
 
 // User
 export const { setUserInitialState, setUser, setPin, setLoggedIn, logout } = userSlice.actions;

@@ -43,12 +43,12 @@ const reducers = {
                 listId: action.payload.listId,
                 itemId: action.payload._id, 
             });
+        }  else { // Only remove the list when not sending to the server to avoid double deletion
+            const items = Utils.findList(state.lists, action.payload.listId).items;
+
+            // Find the index of the list in the array, then remove it 
+            items.splice(items.indexOf(Utils.findList(items, action.payload._id)), 1);
         }
-
-        const items = Utils.findList(state.lists, action.payload.listId).items;
-
-        // Find the index of the list in the array, then remove it 
-        items.splice(items.indexOf(Utils.findList(items, action.payload._id)), 1);
     },
     renameListItem: (state, action) => {
         const list = Utils.findList(state.lists, action.payload.listId);
