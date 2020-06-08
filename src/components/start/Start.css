@@ -1,0 +1,366 @@
+.main {
+    width: 100%;
+
+    color: white;
+
+    text-align: center;
+}
+
+.main > .fullscreen {
+    padding: 56px 2.5rem 5rem 5rem;
+    height: auto;
+    min-height: 565px;
+
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.main-left {
+    width: 40%;
+    text-align: left;
+
+    padding-top: 7.5rem;
+    padding-right: calc(10% + 2rem);
+}
+
+.main .title-container {
+    width: 100%;
+
+    position: relative;
+}
+
+h1.title {
+    width: auto;
+    display: inline-block;
+
+    font-size: 4rem;
+
+    color: #1f1f1f;
+}
+
+.main .sub-title {
+    color: #5a5a5a;
+
+    width: 95%;
+
+    font-size: 1.5rem;
+
+    margin-top: 2rem;
+}
+
+.main-right-container {
+    width: calc(60% - calc(10% + 2rem));
+}
+
+.main-right, .main-right2 {
+    width: 40%;
+    min-width: 375px;
+    max-width: 483px;
+    height: 535px;
+
+    padding-top: 2.5rem;
+}
+
+.main-right {
+    width: 100%;
+    margin: auto;
+}
+
+.main-right-cta {
+    width: 100%;
+    flex-wrap: wrap;
+    display: none;
+    padding-top: 1rem;
+}
+
+.app-image, .main-right .app-image, .main-right2 .app-image {
+    width: 100%;
+    height: 100%;
+
+    background: url("/images/app-small.png") no-repeat;
+    background-size: 100%;
+
+    margin: auto;
+
+    border-radius: 4px;
+
+    z-index: 0;
+
+    -webkit-box-shadow: 0px 5px 40px -5px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 5px 40px -5px rgba(0,0,0,0.75);
+    box-shadow: 0px 5px 40px -5px rgba(0,0,0,0.75);
+}
+
+.create-list-button.MuiButton-contained {
+    height: 4rem;
+    width: 18.5rem;
+
+    font-size: 1.25rem;
+    margin-right: 2.5rem;
+}
+
+.edit-icon {
+    color: rgb(195, 33, 96);
+
+    display: inline-block;
+    
+    width: 56px;
+    height: 112px;
+
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    margin-right: -56px;
+
+    position: relative;
+}
+
+.edit-icon button {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+
+    width: 100%;
+    height: 50%;
+}
+
+.edit-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.main .app-description {
+    width: 100%;
+
+    z-index: 10;
+    position: absolute;
+
+    background-color: #f0f0f0;
+}
+
+.app-description .create-list-button {
+    margin-bottom: 4rem;
+}
+
+.card {
+    width: calc(100% - 6rem);
+    margin: auto;
+    padding: 3rem;
+    display: flex;
+    text-align: left;
+    border-bottom: 1px solid #f1f1f1;
+
+}
+
+.card .card-image-container {
+    width: 25%;
+    min-width: 225px;
+    max-width: 410px;
+    height: 300px;
+    max-height: 342px;
+    position: relative;
+    margin-right: 2rem;
+}
+
+.card .app-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.white {
+    background: white;
+}
+
+.card .card-text {
+    width: calc(75%);
+    text-align: left;
+}
+
+.card .card-title {
+    color: #4c4c4c;
+    font-size: 48px;
+}
+
+.card p {
+    margin-top: 2rem;
+    color: #555;
+    width: 90%;
+    font-size: 21px;
+}
+
+@media only screen and (max-width: 1175px) {
+    .main-left {
+        width: 50%;
+        padding-right: 2rem;
+    }
+}
+
+@media only screen and (max-width: 1030px) {
+    .main > .fullscreen {
+        padding-left: 2.5rem;
+    }
+}
+
+@media only screen and (max-width: 990px) {
+    .main-left {
+        width: 100%;
+        padding-top: 3rem;
+    }
+
+    .main-right-cta {
+        display: flex;
+    }
+
+    .main-cta2 {
+        width: auto;
+        padding-top: 2.5rem;
+    }
+
+    .main-cta {
+        display: none;
+    }
+
+    .main-cta2 {
+        margin: 0 auto;
+    }
+
+    .main-right {
+        display: none;
+    }
+
+    .main-right2 {
+        margin: auto;
+    }
+
+    .card .card-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+    .card {
+        flex-wrap: wrap;
+    }
+
+    .main-left {
+        padding-right: 0;
+    }
+
+    .main .main-left {
+        text-align: center;
+    }
+
+    h1.title {
+        font-size: 3rem; 
+    }
+
+    .main .sub-title {
+        font-size: 1.375rem;
+    }
+
+    .create-list-button.MuiButton-contained {
+        font-size: 1.125rem;
+        width: 16rem;
+        height: 3.5rem;
+        margin-right: 0;
+    }
+
+    .card .card-text {
+        width: 100%;
+
+        padding-top: 2rem;
+    }
+
+    .card .card-title {
+        font-size: 2.25rem;
+    }
+
+    .card .card-image-container {
+        width: 100%;
+        margin: auto;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+    .main > .fullscreen {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .main-left {
+        padding-right: 0;
+        padding-top: 2.25rem;
+    }
+
+    .create-list-button.MuiButton-contained {
+        font-size: 1rem;
+        width: 15rem;
+        height: 3.5rem;
+        margin-right: 0;
+    }
+
+    .main-right2 {
+        padding-right: 0;
+    }
+
+    h1.title {
+        font-size: 2.75rem; 
+        text-align: center;
+    }
+
+    .main .sub-title {
+        font-size: 1.275rem;
+        text-align: center;
+        margin: auto;
+        margin-top: 2rem;
+    }
+
+    .main-right2 {
+        min-width: 275px;
+
+        width: 100%;
+        height: 410px;
+    }
+
+    .main-right-cta {
+        padding-top: 0;
+    }
+
+    .main-cta2 {
+        margin: auto;
+    }
+
+    .card {
+        padding: 1.5rem;
+        width: calc(100% - 3rem);
+    }    
+
+    .card .card-text {
+        padding-top: 1.75rem;
+
+        text-align: center;
+    }
+
+    .card p {
+        margin: 1.5rem auto;
+        font-size: 1.25rem;
+    }
+}
+
+@media only screen and (max-width: 350px) {
+    h1.title {
+        font-size: 2.5rem;
+    }
+
+    .card .card-title {
+        font-size: 2rem;
+    }
+
+    .card p {
+        font-size: 1.125rem;
+    }
+}

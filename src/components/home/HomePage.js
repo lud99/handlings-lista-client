@@ -22,7 +22,7 @@ const Home = (props) => {
         setCurrentListId(null);
         
         WebSocketConnection.login(); 
-    
+        // eslint-disable-next-line
     }, []);
 
     const addListClick = () => {
@@ -47,7 +47,7 @@ const Home = (props) => {
             </MaterialUIList>
             
 
-            <Fab color="primary" aria-label="add" size="large" className="addButton" accessKey="+" onClick={addListClick}>
+            <Fab color="primary" aria-label="add" size="large" className="addButton" onClick={addListClick}>
                 <AddIcon />
             </Fab> 
         </>

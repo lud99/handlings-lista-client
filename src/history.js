@@ -15,6 +15,7 @@ history.push = (url, state = {}) => {
 }
 
 window.onpushstate = () => {
+    // eslint-disable-next-line
     const url = "/" + window.location.href.match(/(http[s]?:\/\/)?([^\/\s]+\/)(.*)/)[3];
 
     history.url = url;
@@ -23,6 +24,7 @@ window.onpushstate = () => {
 }
 
 window.onpopstate = () => {
+    // eslint-disable-next-line
     const url = "/" + window.location.href.match(/(http[s]?:\/\/)?([^\/\s]+\/)(.*)/)[3];
 
     history.url = url;

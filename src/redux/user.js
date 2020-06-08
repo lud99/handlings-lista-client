@@ -1,8 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createSelector } from 'reselect'
 
-import WebSocketConnection from '../WebSocketConnection';
-
 import listReducers from './reducers/listReducers';
 import listItemReducers from './reducers/listItemReducers';
 

@@ -4,8 +4,8 @@ import Utils from './Utils';
 
 import { 
     setUserInitialState, setUser, setPin, setLoggedIn,
-    setLists, addList, removeList, deleteList, renameList, 
-    setListItems, addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal } from './redux/user';
+    setLists, addList, removeList, renameList, 
+    addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal } from './redux/user';
 
 import { setShouldLoad } from './redux/shouldLoad';
 import { setShowInvalidPinSnackbar } from './redux/showInvalidPinSnackbar';
@@ -356,9 +356,11 @@ class WebSocketConnection {
 
             case "ping": {
                 this.send({ type: "pong" });
+
+                break;
             }
             
-            default: break 
+            default: break;
         }
     }
 

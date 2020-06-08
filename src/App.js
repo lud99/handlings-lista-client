@@ -11,6 +11,7 @@ import WebSocketConnection from './WebSocketConnection';
 import Utils from './Utils';
 import Container from 'react-div-100vh';
 
+import StartPage from './components/start/StartPage';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import ListPage from './components/list/ListPage';
@@ -31,11 +32,20 @@ class App extends Component {
                 history.replace(storedUrl);   
         }
 
-        this.socket = WebSocketConnection.init(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this, props.store);
+        if (window.location.pathname !== "/") {
+            
+            this.connect();
+        }
+
+        document.addEventListener("contextmenu", event => event.preventDefault());
+    }
+
+    connect() {
+        if (this.socket) return;
+
+        this.socket = WebSocketConnection.init(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvig.cloudno.de/handlings-lista", this, this.props.store);
 
         window.socket = this.socket;
-
-        document.addEventListener("contextmenu", event => event.preventDefault())
     }
 
     render = () => {
@@ -44,26 +54,36 @@ class App extends Component {
                 <Container className="app">
                     <Switch>
                     <Route path="/" exact render={() => {
-                        if (!this.store.getState().loggedIn)
-                            return <Redirect to="/login" />                        
+                        /*if (!this.store.getState().loggedIn)
+                            return <Redirect to="/login" />  */
+                            
+                        return <StartPage />
                     }}>
                     </Route>
+                    
+                    <Route path="/login" exact render={() => {
+                        this.connect();
 
-                    <Route path="/login" exact render={() => (
-                        <LoginPage /> 
-                    )} />
+                        return <LoginPage /> 
+                    }} />
 
                     <Route path="/login/:pin" exact render={(context) => {
+                        this.connect();
+
                         const pin = context.match.params.pin;
 
                         this.socket.login(pin, ({ success }) => success && history.push("/home"));
                     }} />
 
-                    <Route path="/home" exact render={() => (
-                        <HomePage />
-                    )} />
+                    <Route path="/home" exact render={() => {
+                        this.connect();
+
+                        return <HomePage />
+                    }} />
                     
                     <Route path="/list/:id" exact render={(context) => {
+                        this.connect();
+
                         const listId = context.match.params.id;
 
                         this.store.dispatch(setViewOnly(false));
@@ -74,6 +94,8 @@ class App extends Component {
                     </Route>
 
                     <Route path="/view/:id" exact render={(context) => {
+                        this.connect();
+
                         const listId = context.match.params.id;
 
                         this.store.dispatch(setViewOnly(true));
@@ -83,6 +105,8 @@ class App extends Component {
                     </Route>
 
                     <Route path="/logout" exact render={() => {
+                        this.connect();
+
                         this.store.dispatch(logout());
 
                         return <Redirect to="/login" />
@@ -97,9 +121,5 @@ class App extends Component {
         );
     }
 }
-
-
-const findList = (lists, listId) => lists.find(list => list._id === listId);
-const findItem = (items, itemId) => items.find(item => item._id === itemId);
 
 export default App;

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { connect } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { getCurrentList, setCurrentListId } from '../../redux/currentList';
-import { getList } from '../../redux/user';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';
 
 import Header from '../header/Header';
@@ -28,6 +27,7 @@ const ListPage = (props) => {
         viewOnly,
         setCurrentListId } = props;
 
+    // eslint-disable-next-line
     useEffect(() => { setCurrentListId(listId) }, [])
 
     const list = useSelector(getCurrentList);
@@ -46,7 +46,7 @@ const ListPage = (props) => {
         } else {
             // Otherwise login
             WebSocketConnection.login();
-        }
+        } // eslint-disable-next-line
     }, []);
 
     const invalidPinOnClose = () => viewOnly && setShowReadOnlySnackbar(true); 

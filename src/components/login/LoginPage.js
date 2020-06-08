@@ -14,7 +14,7 @@ import { setShowInvalidPinSnackbar } from '../../redux/showInvalidPinSnackbar'
 
 import history from '../../history';
 
-import '../../css/Login.css';
+import './Login.css';
 
 const LoginPage = ({ pin, isOffline }) => {
     const enterPinClick = () => {

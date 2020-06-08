@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 import { connect } from 'react-redux';
-import { setOffline } from '../../redux/offline'
 import { Button, Snackbar, IconButton } from '@material-ui/core';
 import WebSocketConnection from '../../WebSocketConnection'; 
 import CloseIcon from '@material-ui/icons/Close';

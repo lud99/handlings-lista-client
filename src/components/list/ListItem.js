@@ -1,4 +1,4 @@
-import React, { Component, useRef, forwardRef } from 'react';
+import React, { useRef, forwardRef } from 'react';
 
 import { ListItem, ListItemText, Divider, IconButton } from '@material-ui/core';
 import { toggleListItemCompleted, removeListItem, makeGetListItemFromId } from '../../redux/user';
@@ -78,7 +78,7 @@ const ItemEdit = forwardRef(({ onClick, enabled }, ref) => (
         </IconButton>
     </Grow>
 ));
-
+/*
 class ItemHandler extends Component {
     shouldComponentUpdate(nextProps) {
         const props = this.props;
@@ -103,13 +103,13 @@ class ItemHandler extends Component {
 
             return false
         }*/
-    
+    /*
 
         return true;
     }
 
     render() { return <Item {...this.props} /> }
-}
+}*/
 
 const styles = {
     item: function(isBeingDragged, completed, editMode = false) { 

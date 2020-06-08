@@ -17,7 +17,7 @@ const Text = forwardRef(({ item, renameListItem, renameListItemLocal, editIconEl
     ];
 
     useEffect(() => { 
-        if (localText !== text) setInputText(text)
+        if (localText !== text) setInputText(text) // eslint-disable-next-line
     }, [text]);
 
     // Listen for custom blur events
@@ -26,7 +26,7 @@ const Text = forwardRef(({ item, renameListItem, renameListItemLocal, editIconEl
             setCanRename(false);
 
             inputElement.current.blur();
-        })
+        }) // eslint-disable-next-line
     }, []);
 
     const hideEditIcon = () => editIconElement.current.style.visibility = "hidden";
