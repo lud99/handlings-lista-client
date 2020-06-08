@@ -360,7 +360,7 @@ class WebSocketConnection {
                 break;
             }
             
-            default: break;
+            default: break; 
         }
     }
 
