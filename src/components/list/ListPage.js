@@ -62,7 +62,7 @@ const ListPage = (props) => {
             { list &&
             
             <>
-                <Header useEditButton={true} useRenameList={true} />
+                <Header useEditButton={true} useRenameList={true} useListDone={true} />
                 <List />
 
                 { !viewOnly && <AddItem /> }

@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
+import { setListCompleted } from '../../redux/user';
 import { toggleEditMode } from '../../redux/editMode';
 import { getCurrentList } from '../../redux/currentList';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';  
@@ -14,6 +15,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import history from '../../history';
 import Utils from '../../Utils';
 import Title from './Title';
+import ListCompletedButton from './ListCompletedButton';
 
 import './Header.css';
 
@@ -22,10 +24,12 @@ const Header = (props) => {
         title,
         useEditButton, 
         useRenameList,
+        useListDone,
         editMode, 
         toggleEditMode, 
         setShowReadOnlySnackbar, 
         setShowInvalidPinSnackbar,
+        setListCompleted,
         viewOnly } = props;
 
     const list = useSelector(getCurrentList);
@@ -58,6 +62,8 @@ const Header = (props) => {
         setShowReadOnlySnackbar(true);
     }
 
+    const completeList = () => list && setListCompleted({ _id: list._id, completed: true });
+
     const titleFormatted = Utils.capitalize(list ? list.name : title);
 
     return (
@@ -70,9 +76,12 @@ const Header = (props) => {
                 <Title titleFormatted={titleFormatted} editMode={editMode} useRenameList={useRenameList} />
 
                 { (!viewOnly && useEditButton) && 
-                    <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
-                        <EditIcon />
-                    </IconButton> 
+                    <>
+                        { useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list.completed)} /> }
+                        <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
+                            <EditIcon />
+                        </IconButton> 
+                    </>
                 }
 
                 { viewOnly &&
@@ -91,7 +100,8 @@ Header.defaultProps = {
 }
 
 const styles = {
-    editButton: (editMode) => ({ color: !editMode ? "#fff" : "#c32160" })
+    editButton: (editMode) => ({ color: !editMode ? "#fff" : "#c32160" }),
+    listCompletedButton: (completed) => ({ color: completed ? "#2ba02f" : "#fff"})
 }
 
 const mapStateToProps = state => ({
@@ -99,6 +109,6 @@ const mapStateToProps = state => ({
     viewOnly: state.viewOnly,
 })
 
-const mapDispatch = { toggleEditMode: () => toggleEditMode(), setShowReadOnlySnackbar, setShowInvalidPinSnackbar };
+const mapDispatch = { toggleEditMode: () => toggleEditMode(), setShowReadOnlySnackbar, setShowInvalidPinSnackbar, setListCompleted };
 
 export default connect(mapStateToProps, mapDispatch)(Header);

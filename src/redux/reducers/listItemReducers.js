@@ -77,7 +77,7 @@ const reducers = {
     },
     toggleListItemCompleted: (state, action) => {
         const list = Utils.findList(state.lists, action.payload.listId);
-        if (!list) return state;
+        if (!list || list.completed) return state;
 
         const item = Utils.findItem(list.items, action.payload._id);
         if (!item) return state;
@@ -86,7 +86,8 @@ const reducers = {
             WebSocketConnection.send({
                 type: "update-list-item-state",
                 pin: state.pin,
-                itemId: action.payload._id
+                itemId: action.payload._id,
+                listId: action.payload.listId,
             });
         }
 

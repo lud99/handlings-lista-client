@@ -57,7 +57,7 @@ export const makeGetListItemFromId = () => {
 export const { setUserInitialState, setUser, setPin, setLoggedIn, logout } = userSlice.actions;
 
 // Lists
-export const { setLists, addList, createList, removeList, renameList } = userSlice.actions;
+export const { setLists, addList, createList, removeList, renameList, setListCompleted } = userSlice.actions;
 
 // List items
 export const { 

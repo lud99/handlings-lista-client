@@ -63,6 +63,21 @@ const reducers = {
 
         list.name = action.payload.name;
     },
+    setListCompleted: (state, action) => {
+        if (!action.payload._id) return state;
+
+        // Send the state update to the server
+        if (!action.payload.localOnly) {
+            WebSocketConnection.send({
+                type: "set-list-completed",
+                pin: state.pin,
+                listId: action.payload._id,
+                completed: action.payload.completed
+            });
+        }
+
+        return state;
+    },
 }
 
 export default reducers;

@@ -25,35 +25,39 @@ const List = ({ list, editMode, removeList }) => {
 
     return (          
         <>      
-            <ListItem button style={styles.listItem} onClick={openList}>
+            <ListItem button style={styles.listItem(list.completed)} onClick={openList}>
                 <div className="listTopRow" style={styles.topRow(editMode)}>
                     <ListItemText primary={Utils.capitalize(list.name)}/>
                     <ListItemText primary={dateText} style={styles.date(editMode)}/>
                 </div>
                 <div className="listBottomRow" style={styles.bottomRow(editMode)}>
-                    <ListItemsPreview items={list.items} /> 
+                    <ListItemsPreview listCompleted={list.completed} items={list.items} /> 
                 </div>
                 <Delete className="homeListDelete" enabled={editMode} onClick={() => removeList({ _id: list._id })}/>
             </ListItem>
 
-            <Divider style={styles.divider} />
+            <Divider style={styles.divider(list.completed)} />
         </>
     );
 }
 
 
 const styles = {
-    listItem: {
+    listItem: (completed) => ({
         height: "auto",
         justifyContent: "space-between",
         paddingLeft: "1.5rem",
         paddingRight: "0.5rem",
-        flexWrap: "wrap"
-    },
+        flexWrap: "wrap",
+        backgroundColor: completed ? "var(--completed-color)" : ""
+    }),
     topRow: (editMode) => ({ width: editMode ? "calc(100% - 48px)" : "100%" }),
     date: (editMode) => ({ marginRight: editMode ? "0.5rem" : ""}),
     bottomRow: (editMode) => ({ width: editMode ? "calc(100% - 44px)" : "95%" }), 
-    divider: { marginLeft: "1rem" },
+    divider: (completed) => ({
+        backgroundColor: completed ? "var(--completed-color)" : "",
+        marginLeft: completed ? "0" : "1rem"
+    }),
 }
 
 const mapStateToProps = state => ({
