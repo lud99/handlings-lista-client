@@ -14,7 +14,7 @@ const AddItem = ({ listId,  createListItem }) => {
     const addItem = (event) => {
         if (event) event.preventDefault(); // Prevent form submission
 
-        if (inputValue !== "") createListItem({ listId,  text: inputValue });
+        if (inputValue !== "") createListItem({ listId, text: inputValue });
 
         setInputValue("");
 
@@ -24,7 +24,7 @@ const AddItem = ({ listId,  createListItem }) => {
     return (
         <div className="add-item-container">
             <form onSubmit={event => addItem(event)}>
-                <Input placeholder="Föremål" value={inputValue} onChange={event => setInputValue(event.target.value)} ref={input} autoCapitalize="on"/>
+                <Input placeholder="Föremål" value={inputValue} onChange={event => setInputValue(event.target.value)} ref={input} />
 
                 <Button variant="contained" className="button button-small" onClick={() => addItem()}>
                     Lägg till

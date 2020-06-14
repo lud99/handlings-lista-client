@@ -25,6 +25,7 @@ const reducers = {
         WebSocketConnection.send({
             type: "create-list",
             name: action.payload.name,
+            items: action.payload.items,
             pin: state.pin
         });
 
@@ -74,9 +75,13 @@ const reducers = {
                 listId: action.payload._id,
                 completed: action.payload.completed
             });
-        }
 
-        return state;
+            return state;
+        } else {
+            const list = Utils.findList(state.lists, action.payload._id);
+
+            list.completed = action.payload.completed;
+        }
     },
 }
 

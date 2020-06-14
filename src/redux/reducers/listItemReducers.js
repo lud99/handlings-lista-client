@@ -84,7 +84,7 @@ const reducers = {
 
         if (!action.payload.localOnly) {
             WebSocketConnection.send({
-                type: "update-list-item-state",
+                type: "toggle-list-item-state",
                 pin: state.pin,
                 itemId: action.payload._id,
                 listId: action.payload.listId,

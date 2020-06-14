@@ -4,7 +4,7 @@ import Utils from './Utils';
 
 import { 
     setUserInitialState, setUser, setPin, setLoggedIn,
-    setLists, addList, removeList, renameList, 
+    setLists, addList, removeList, renameList, setListCompleted,
     addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal } from './redux/user';
 
 import { setShouldLoad } from './redux/shouldLoad';
@@ -233,6 +233,11 @@ class WebSocketConnection {
                 
                 break;
             }
+            case "set-list-completed": {
+                this.dispatch(setListCompleted({ _id: message.data._id, completed: message.data.completed, localOnly: true}))
+                
+                break;
+            }
             case "remove-list": {
                 // Remove the list by the list id
                 this.dispatch(removeList({ _id: message.data.listId, localOnly: true }))
@@ -313,6 +318,12 @@ class WebSocketConnection {
                 break;
             }
             case "update-list-item-state": {
+                // Only toggle the item locally
+                this.dispatch(toggleListItemCompleted({ ...message.data, localOnly: true }))
+
+                break;
+            }
+            case "toggle-list-item-state": {
                 // Only toggle the item locally
                 this.dispatch(toggleListItemCompleted({ ...message.data, localOnly: true }))
 

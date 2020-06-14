@@ -1,14 +1,14 @@
 import React, { forwardRef } from 'react';
 
 const Input = forwardRef((props, ref) => (
-    <input type="text" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false" ref={ref} { ...props} />
+    <input type="text" ref={ref} { ...props} />
 ));
 
 Input.defaultProps = {
-    autoComplete: "off",
-    autoCorrect: "off",
+    autoComplete: "on",
+    autoCorrect: "on",
     autoCapitalize: "on",
-    spellCheck: "false"
+    spellCheck: "true"
 }
 
 export default Input;

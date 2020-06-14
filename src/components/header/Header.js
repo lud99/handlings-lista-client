@@ -3,8 +3,8 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
-import { setListCompleted } from '../../redux/user';
-import { toggleEditMode } from '../../redux/editMode';
+import { setListCompleted, createList } from '../../redux/user';
+import { toggleEditMode, setEditMode } from '../../redux/editMode';
 import { getCurrentList } from '../../redux/currentList';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';  
 import { setShowInvalidPinSnackbar } from '../../redux/showInvalidPinSnackbar';  
@@ -30,6 +30,8 @@ const Header = (props) => {
         setShowReadOnlySnackbar, 
         setShowInvalidPinSnackbar,
         setListCompleted,
+        createList,
+        setEditMode,
         viewOnly } = props;
 
     const list = useSelector(getCurrentList);
@@ -53,7 +55,10 @@ const Header = (props) => {
 
         const previousUrl = pageUrlLayout[index - 1];
 
-        history.push(previousUrl)
+        history.push(previousUrl);
+
+        // Disable the edit mode
+        setEditMode(false);
     }
 
     const openReadOnlySnackbar = () => {
@@ -62,7 +67,15 @@ const Header = (props) => {
         setShowReadOnlySnackbar(true);
     }
 
-    const completeList = () => list && setListCompleted({ _id: list._id, completed: true });
+    const completeList = () => {
+        if (list) {
+            setListCompleted({ _id: list._id, completed: true });
+
+            console.log("complete ölist")
+
+            createList({ name: list.name + " 2", items: list.items });
+        }
+    }
 
     const titleFormatted = Utils.capitalize(list ? list.name : title);
 
@@ -77,7 +90,8 @@ const Header = (props) => {
 
                 { (!viewOnly && useEditButton) && 
                     <>
-                        { useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list.completed)} /> }
+                        { /* useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list.completed)} />*/ }
+
                         <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
                             <EditIcon />
                         </IconButton> 
@@ -109,6 +123,13 @@ const mapStateToProps = state => ({
     viewOnly: state.viewOnly,
 })
 
-const mapDispatch = { toggleEditMode: () => toggleEditMode(), setShowReadOnlySnackbar, setShowInvalidPinSnackbar, setListCompleted };
+const mapDispatch = { 
+    toggleEditMode: () => toggleEditMode(), 
+    setEditMode, 
+    setShowReadOnlySnackbar, 
+    setShowInvalidPinSnackbar, 
+    setListCompleted,
+    createList 
+};
 
 export default connect(mapStateToProps, mapDispatch)(Header);
