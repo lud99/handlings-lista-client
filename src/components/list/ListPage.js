@@ -44,8 +44,11 @@ const ListPage = (props) => {
 
             setShowReadOnlySnackbar(true); 
         } else {
-            // Otherwise login
-            WebSocketConnection.login();
+            // Otherwise login if a pin exists
+            if (!localStorage.getItem("pin"))
+                history.replace("/login");
+            else
+                WebSocketConnection.login(); 
         } // eslint-disable-next-line
     }, []);
 

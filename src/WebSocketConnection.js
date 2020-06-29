@@ -69,7 +69,7 @@ class WebSocketConnection {
             if (savedPin) { 
                 if (!this.isLoggingIn)
                     this.send({ type: "valid-pin", pin: savedPin });
-            } else // Otherwise create one
+            } else if (!window.location.href.includes("view")) // Otherwise create one (but only if not viewing a list)
                 this.send({ type: "create-user" });
         }
 
@@ -435,6 +435,15 @@ class WebSocketConnection {
         this.isLoggingIn = true;
 
         this.send({ type: "login", pin: pin }, callback);
+    }
+
+    static createList = ({ name, items }, callback) => {
+        this.send({
+            type: "create-list",
+            name,
+            items,
+            pin: this.getState().user.pin,
+        }, callback);
     }
 }
 

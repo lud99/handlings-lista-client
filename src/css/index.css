@@ -108,6 +108,10 @@ button.MuiButton-contained.Mui-disabled, a.MuiButton-contained.Mui-disabled {
     height: 5rem;
 }
 
+.capitalize {
+    text-transform: capitalize;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

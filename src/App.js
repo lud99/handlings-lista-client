@@ -72,7 +72,12 @@ class App extends Component {
 
                         const pin = context.match.params.pin;
 
-                        this.socket.login(pin, ({ success }) => success && history.push("/home"));
+                        this.socket.login(pin, ({ success }) => {
+                            if (success) 
+                                history.push("/home")
+                            else 
+                                history.replace("/login");
+                        });
                     }} />
 
                     <Route path="/home" exact render={() => {

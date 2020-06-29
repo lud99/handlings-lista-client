@@ -71,8 +71,6 @@ const Header = (props) => {
         if (list) {
             setListCompleted({ _id: list._id, completed: true });
 
-            console.log("complete ölist")
-
             createList({ name: list.name + " 2", items: list.items });
         }
     }
@@ -90,7 +88,7 @@ const Header = (props) => {
 
                 { (!viewOnly && useEditButton) && 
                     <>
-                        { /* useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list.completed)} />*/ }
+                        { useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list.completed)} /> }
 
                         <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
                             <EditIcon />

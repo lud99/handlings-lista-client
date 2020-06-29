@@ -26,7 +26,7 @@ const reducers = {
             type: "create-list",
             name: action.payload.name,
             items: action.payload.items,
-            pin: state.pin
+            pin: state.pin,
         });
 
         return state;

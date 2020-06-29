@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { connect } from 'react-redux'
 
 import { List as MaterialUIList, Fab } from '@material-ui/core';
 
-import { createList } from '../../redux/user';
 import { setCurrentListId } from '../../redux/currentList';
 
 import AddIcon from '@material-ui/icons/Add';
@@ -12,30 +11,35 @@ import Header from '../header/Header';
 import LoadingBackdrop from '../LoadingBackdrop';
 import WebSocketConnection from '../../WebSocketConnection';
 import List from './List';
+import CreateListDialog from './CreateListDialog';
 
 import './Home.css';
+import history from '../../history';
 
 const Home = (props) => {
-    const { lists, pin, shouldLoad, editMode, createList, setCurrentListId } = props;
+    const { lists, shouldLoad, editMode, setCurrentListId } = props;
+
+    const [createListDialogOpen, setCreateListDialogOpen] = useState(false);
 
     useEffect(() => { 
         setCurrentListId(null);
-        
-        WebSocketConnection.login(); 
+
+        if (!localStorage.getItem("pin"))
+            history.replace("/login");
+        else
+            WebSocketConnection.login(); 
         // eslint-disable-next-line
     }, []);
 
-    const addListClick = () => {
-        const name = prompt("Namn på listan:");
-
-        if (name) createList({ name, pin });
-    }
+    const createList = () => setCreateListDialogOpen(true);
 
     return (
         <>
             { (!lists || shouldLoad) && <LoadingBackdrop isEnabled={true} /> }
 
             <Header title="Listor" useEditButton={true} />
+
+            { createListDialogOpen && <CreateListDialog setOpen={setCreateListDialogOpen} /> }
 
             <MaterialUIList className="list" component="div"> 
                 { lists && (lists.length === 0 ?
@@ -47,7 +51,7 @@ const Home = (props) => {
             </MaterialUIList>
             
 
-            <Fab color="primary" aria-label="add" size="large" className="addButton" onClick={addListClick}>
+            <Fab color="primary" aria-label="add" size="large" className="addButton" onClick={createList}>
                 <AddIcon />
             </Fab> 
         </>
@@ -57,10 +61,9 @@ const Home = (props) => {
 const mapStateToProps = state => ({
     lists: state.user.lists,
     shouldLoad: state.shouldLoad,
-    pin: state.user.pin,
     editMode: state.editMode,
 })
 
-const mapDispatch = { createList, setCurrentListId };
+const mapDispatch = { setCurrentListId };
 
 export default connect(mapStateToProps, mapDispatch)(Home);

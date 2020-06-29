@@ -95,3 +95,15 @@
 .MuiButtonBase-root.addButton:hover {
     background-color: #f0b400;
 }
+
+.create-list-select.MuiListItem-gutters {
+    padding: 0;
+
+    margin-top: 0.5rem;
+}
+
+.create-list-select p { 
+    display: block;
+
+    text-transform: capitalize;
+}

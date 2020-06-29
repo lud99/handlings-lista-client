@@ -27,7 +27,10 @@ const InvalidPinSnackbar = ({ isOpen, setOpen, onClose, onLogin = ({ success }) 
 
         const pin = prompt("Skriv in PIN");
 
-        if (pin) WebSocketConnection.login(pin, onLogin);
+        if (pin) {
+            // If already logged in
+            if (WebSocketConnection.login(pin, onLogin)) onLogin({ success: true });
+        }
     }
 
     return (
