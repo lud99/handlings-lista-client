@@ -234,7 +234,7 @@ input[type="text"]:focus {
 }
 
 .MuiTypography-root.listCompleteDialogWarning {
-    margin-top: 0.5rem;
+    margin-top: 0.5rem; 
     color: #f44336;
 }
 
