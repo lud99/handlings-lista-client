@@ -24,12 +24,28 @@ const Home = (props) => {
     useEffect(() => { 
         setCurrentListId(null);
 
-        if (!localStorage.getItem("pin"))
+        if (!localStorage.getItem("pin")) {
             history.replace("/login");
-        else
-            WebSocketConnection.login(); 
+        } else {
+            // Create a new pin if the stored pin is invalid
+            WebSocketConnection.login(localStorage.getItem("pin"), ({ success }) => {
+                if (!success) 
+                    WebSocketConnection.resetStoredUser();
+            }); 
+        }
         // eslint-disable-next-line
     }, []);
+
+    useEffect(() => {
+        // Prevent scrolling on ios
+        document.body.style.position = "fixed";
+
+        // Return a function that restores the body's position to the default
+        // when this component unmounts
+        return () => {
+            document.body.style.position = ""; 
+        }
+    }, [])
 
     const createList = () => setCreateListDialogOpen(true);
 

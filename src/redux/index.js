@@ -6,6 +6,7 @@ import offline from './offline'
 import viewOnly from './viewOnly';
 import showInvalidPinSnackbar from './showInvalidPinSnackbar';
 import showReadOnlySnackbar from './showReadOnlySnackbar';
+import showListCompletedDialog from './showListCompleteDialog';
 import shouldLoad from './shouldLoad';
 import editMode from './editMode';
 import resetDrag from './resetDrag';
@@ -20,5 +21,6 @@ export default combineReducers({
     editMode,
     showInvalidPinSnackbar,
     showReadOnlySnackbar,
+    showListCompletedDialog,
     resetDrag
 });

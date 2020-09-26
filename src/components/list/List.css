@@ -229,6 +229,30 @@ input[type="text"]:focus {
     bottom: 0;
 }
 
+.list-complete-action label {
+    padding: 0.25rem 0 0.25rem 0;
+}
+
+.MuiTypography-root.listCompleteDialogWarning {
+    margin-top: 0.5rem;
+    color: #f44336;
+}
+
+.confettiEffect {
+    z-index: 10000000; /* on top of everything */
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+.confettiEffect div {
+    z-index: 10000000; /* on top of everything */
+
+    margin-left: 50%;
+    margin-right: 50%;
+}
+
 @media only screen and (max-height: 650px) {
     .add-item-container {
         height: 4rem;

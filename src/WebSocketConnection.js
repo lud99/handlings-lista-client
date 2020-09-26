@@ -5,7 +5,7 @@ import Utils from './Utils';
 import { 
     setUserInitialState, setUser, setPin, setLoggedIn,
     setLists, addList, removeList, renameList, setListCompleted,
-    addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal } from './redux/user';
+    addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal, removeCompletedItems } from './redux/user';
 
 import { setShouldLoad } from './redux/shouldLoad';
 import { setShowInvalidPinSnackbar } from './redux/showInvalidPinSnackbar';
@@ -151,6 +151,7 @@ class WebSocketConnection {
                     this.dispatch(setShouldLoad(false));
                 } else {
                     this.dispatch(setShowInvalidPinSnackbar(true));
+                    this.dispatch(setShouldLoad(false));
                 }
                 
                 // Get message callback
@@ -162,17 +163,8 @@ class WebSocketConnection {
                 break;
             }
             case "valid-pin": { 
-                // If the login was successfull
-                if (!message.success) {           
-                    localStorage.removeItem("pin");
-
-                    // Remove the saved user
-                    this.dispatch(setUserInitialState());
-
-                    this.send({ type: "create-user" });
-
-                    history.push("/login");
-                }
+                // Reset user if pin is invalid
+                if (!message.success) this.resetStoredUser();
 
                 break;
             }
@@ -249,6 +241,15 @@ class WebSocketConnection {
                 this.dispatch(renameList({ ...message.data, localOnly: true }));
 
                 this.blurActiveElementManual(document.getElementById("list-name-input")); // Remove the focus without renaming it
+
+                break;
+            }
+            case "remove-completed-items": {
+                // Only toggle the item locally
+                this.dispatch(removeCompletedItems({ ...message.data, localOnly: true }));
+
+                // Run the callback
+                this.getMessageCallback(message.callbackId)(message);
 
                 break;
             }
@@ -444,6 +445,25 @@ class WebSocketConnection {
             items,
             pin: this.getState().user.pin,
         }, callback);
+    }
+
+    static removeCompletedItems = ({ listId }, callback) => {
+        this.send({
+            type: "remove-completed-items",
+            listId: listId,
+            pin: this.getState().user.pin,
+        }, callback);
+    }
+
+    static resetStoredUser = () => {
+        localStorage.removeItem("pin");
+
+        // Remove the saved user
+        this.dispatch(setUserInitialState());
+
+        this.send({ type: "create-user" });
+
+        history.push("/login");
     }
 }
 

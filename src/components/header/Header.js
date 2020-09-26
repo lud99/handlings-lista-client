@@ -8,6 +8,7 @@ import { toggleEditMode, setEditMode } from '../../redux/editMode';
 import { getCurrentList } from '../../redux/currentList';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';  
 import { setShowInvalidPinSnackbar } from '../../redux/showInvalidPinSnackbar';  
+import { setShowListCompleteDialog } from '../../redux/showListCompleteDialog';
 
 import BackIcon from '@material-ui/icons/ArrowBack';
 import EditIcon from '@material-ui/icons/Edit';
@@ -29,6 +30,7 @@ const Header = (props) => {
         toggleEditMode, 
         setShowReadOnlySnackbar, 
         setShowInvalidPinSnackbar,
+        setShowListCompleteDialog,
         setListCompleted,
         createList,
         setEditMode,
@@ -67,13 +69,7 @@ const Header = (props) => {
         setShowReadOnlySnackbar(true);
     }
 
-    const completeList = () => {
-        if (list) {
-            setListCompleted({ _id: list._id, completed: true });
-
-            createList({ name: list.name + " 2", items: list.items });
-        }
-    }
+    const completeList = () => setShowListCompleteDialog(true);
 
     const titleFormatted = Utils.capitalize(list ? list.name : title);
 
@@ -126,6 +122,7 @@ const mapDispatch = {
     setEditMode, 
     setShowReadOnlySnackbar, 
     setShowInvalidPinSnackbar, 
+    setShowListCompleteDialog,
     setListCompleted,
     createList 
 };

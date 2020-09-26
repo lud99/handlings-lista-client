@@ -108,6 +108,11 @@ button.MuiButton-contained.Mui-disabled, a.MuiButton-contained.Mui-disabled {
     height: 5rem;
 }
 
+.MuiBackdrop-root, .MuiDialog-container, .MuiDialog-scrollPaper {
+    -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
 .capitalize {
     text-transform: capitalize;
 }

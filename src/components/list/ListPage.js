@@ -5,9 +5,12 @@ import { useSelector } from 'react-redux'
 import { getCurrentList, setCurrentListId } from '../../redux/currentList';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';
 
+import Confetti from 'react-dom-confetti';
+
 import Header from '../header/Header';
 import List from './List';
 import AddItem from './AddItem';
+import ListCompleteDialog from './ListCompleteDialog';
 import LoadingBackdrop from '../LoadingBackdrop';
 import ReadOnlySnackbar from '../ReadOnlySnackbar';
 import InvalidPinSnackbar from '../InvalidPinSnackbar';
@@ -18,14 +21,22 @@ import history from '../../history';
 import './List.css';
 import { Redirect } from 'react-router-dom';
 
-const ListPage = (props) => {
-    // Destructure the props
-    const { 
-        listId, 
-        shouldLoad, 
-        setShowReadOnlySnackbar,
-        viewOnly,
-        setCurrentListId } = props;
+const config = {
+    angle: 90,
+    spread: 360,
+    startVelocity: "20",
+    elementCount: "125",
+    dragFriction: "0.15",
+    duration: "7000",
+    stagger: "1",
+    width: "10px",
+    height: "10px",
+    perspective: "500px",
+    colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
+};
+
+const ListPage = (
+    { listId, shouldLoad, setShowReadOnlySnackbar, showListCompletedDialog, viewOnly, setCurrentListId } ) => {
 
     // eslint-disable-next-line
     useEffect(() => { setCurrentListId(listId) }, [])
@@ -59,6 +70,12 @@ const ListPage = (props) => {
     return (
         <>
             { !list && !shouldLoad && <Redirect to="/home" /> }
+
+            <div className="confettiEffect">
+                <Confetti active={showListCompletedDialog} config={config} />
+            </div>
+            
+            { showListCompletedDialog && <ListCompleteDialog /> }
             
             { shouldLoad && <LoadingBackdrop isEnabled={true} /> }
 
@@ -83,7 +100,8 @@ const mapStateToProps = state => ({
     lists: state.user.lists,
     shouldLoad: state.shouldLoad,
     viewOnly: state.viewOnly,
-    showReadOnlySnackbar: state.showReadOnlySnackbar
+    showReadOnlySnackbar: state.showReadOnlySnackbar,
+    showListCompletedDialog: state.showListCompletedDialog
 });
 
 const mapDispatch = { setCurrentListId, setShowReadOnlySnackbar }

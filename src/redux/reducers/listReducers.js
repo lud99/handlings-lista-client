@@ -83,6 +83,26 @@ const reducers = {
             list.completed = action.payload.completed;
         }
     },
+    removeCompletedItems: (state, action) => {
+        if (!action.payload._id) return state;
+
+        // Send the state update to the server
+        if (!action.payload.localOnly) {
+            WebSocketConnection.send({
+                type: "remove-completed-items",
+                pin: state.pin,
+                listId: action.payload._id,
+            });
+        } else {
+            const list = Utils.findList(state.lists, action.payload._id);
+
+            console.log(action.payload, action.payload.items)
+
+            list.items = action.payload.items;
+        }
+
+        return state;
+    },
 }
 
 export default reducers;
