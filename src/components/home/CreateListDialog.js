@@ -31,6 +31,17 @@ const CreateListDialog = ({ setOpen, lists }) => {
         if (listName) setListNameError(false);
     }, [listName])
 
+    useEffect(() => {
+        // Prevent scrolling on ios
+        document.body.style.position = "fixed";
+
+        // Return a function that restores the body's position to the default
+        // when this component unmounts
+        return () => {
+            document.body.style.position = ""; 
+        }
+    }, [])
+
     const listChooserOnClose = (listId) => {
         if (listId)
             setBasedOnList(Utils.findList(lists, listId))

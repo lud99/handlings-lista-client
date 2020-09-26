@@ -31,8 +31,6 @@ const Header = (props) => {
         setShowReadOnlySnackbar, 
         setShowInvalidPinSnackbar,
         setShowListCompleteDialog,
-        setListCompleted,
-        createList,
         setEditMode,
         viewOnly } = props;
 
