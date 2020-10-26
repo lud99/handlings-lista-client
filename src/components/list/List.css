@@ -267,7 +267,7 @@ input[type="text"]:focus {
     }
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 450px) {
     .add-item-container input {
         width: calc(100% - calc(25% + 96px));
         font-size: 1.05rem;

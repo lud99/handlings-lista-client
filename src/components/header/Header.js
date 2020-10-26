@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { connect } from 'react-redux'
 import { useSelector } from 'react-redux'
@@ -16,6 +16,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import history from '../../history';
 import Utils from '../../Utils';
 import Title from './Title';
+import ActionsMenu from './ActionsMenu';
 import ListCompletedButton from './ListCompletedButton';
 
 import './Header.css';
@@ -33,6 +34,8 @@ const Header = (props) => {
         setShowListCompleteDialog,
         setEditMode,
         viewOnly } = props;
+
+    const [latestButtonUsed, setLatestButtonUsed] = useState("edit");
 
     const list = useSelector(getCurrentList);
 
@@ -82,13 +85,31 @@ const Header = (props) => {
 
                 { (!viewOnly && useEditButton) && 
                     <>
-                        { useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list && list.completed)} /> }
+                    {
+                        (function() {
+                            switch (latestButtonUsed) {
+                                case "edit": return (
+                                    <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
+                                );
+                                case "completed": return (
+                                    <ListCompletedButton 
+                                        onClick={completeList} style={styles.listCompletedButton(list && list.completed)} />
+                                );
+                            }
 
-                        <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
-                            <EditIcon />
-                        </IconButton> 
+                            return;
+                        })()
+                    }
+                        { /*useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list && list.completed)} /> */}
+
+                        
                     </>
-                }
+                 }
+
+                <ActionsMenu 
+                    useEditButton={useEditButton} 
+                    useListDone={useListDone} 
+                    setLatestButtonUsed={setLatestButtonUsed} />
 
                 { viewOnly &&
                     <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={openReadOnlySnackbar}>
@@ -105,8 +126,34 @@ Header.defaultProps = {
     useRenameList: false,
 }
 
+const EditButton = ({ editMode, toggleEditMode }) => {
+    const [color, setColor] = useState(editMode ? "#c32160" : "#fff");
+    useEffect(() => {
+        setColor(editMode ? "#c32160" : "#fff");
+    }, [editMode])
+
+    const onClick = () => {
+        toggleColors();
+
+        toggleEditMode();
+    }
+
+    const toggleColors = () => {
+        if (color === "#fff")
+            setColor("#c32160");
+        else if (color === "#c32160")
+            setColor("#fff");
+    }
+
+    return (
+        <IconButton edge="end" className="editButton" color="inherit" style={{ color }} 
+            onClick={onClick}>
+            <EditIcon />
+        </IconButton> 
+    );
+}
+
 const styles = {
-    editButton: (editMode) => ({ color: !editMode ? "#fff" : "#c32160" }),
     listCompletedButton: (completed) => ({ color: completed ? "#2ba02f" : "#fff"})
 }
 

@@ -48,15 +48,54 @@ header .title input {
     text-overflow: ellipsis;
 }
 
+.actionsMenuItem.MuiListItem-gutters {
+    min-height: 48px !important;
+
+    padding-left: 12px;
+}
+
+.actionsMenuItem .menuIcon {
+    min-width: 0px;
+    padding-right: 1rem;
+
+    width: 1.65rem;
+    height: 1.65rem;
+
+    transition: color 0.25s;
+}
+
+.actionsMenuItem .menuIcon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.actionsMenuItem .menuCompletedButton {
+    width: 1.85rem;
+    height: 1.85rem;
+
+    padding-right: calc(1rem - 0.2rem); /* Adjust so everything lines up */
+}
+
+#actions-menu .editButton {
+    width: 1.75em;
+    height: 1.75em;
+    margin-left: -0.5rem;
+
+    position: relative;
+
+    padding: 0.0rem;
+}
+
+#actions-menu .editButton svg {
+    width: 1.1em;
+    height: 1.1em;
+}
+
 header .editButton {
     margin-left: auto;
     margin-right: 0px;
 
     transition: color 0.25s;
-}
-
-header .editButton:hover {
-    color: rgb(195, 33, 96) !important;
 }
 
 header .editButton svg { color: inherit; }
@@ -87,8 +126,8 @@ header .readOnly {
     }
 
     header .listCompleted svg {
-        width: 1.1em;
-        height: 1.1em;
+        width: 1.15em;
+        height: 1.15em;
     }
 
     header .readOnly svg {
@@ -97,7 +136,7 @@ header .readOnly {
     }
 
     header .editButton svg {
-        width: 0.9em;
-        height: 0.9em;
+        width: 1em;
+        height: 1em;
     }
 }
