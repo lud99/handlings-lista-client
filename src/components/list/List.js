@@ -49,6 +49,12 @@ const List = (props) => {
 
     return (
         <>
+        { (list && list.items.length === 0) ? 
+            <MaterialUIList className="list items-list" component="div">
+                <p className="noLists">Denna lista är tom. När någon lägger till en vara kommer den att visas här</p>
+            </MaterialUIList>
+            : 
+
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="droppable">
                     {(provided) => (
@@ -68,7 +74,7 @@ const List = (props) => {
                     </MaterialUIList>
                     )}
                 </Droppable>
-            </DragDropContext>
+            </DragDropContext> }
         </>
     )
 }

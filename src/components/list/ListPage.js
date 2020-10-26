@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { connect } from 'react-redux'
-import { useSelector } from 'react-redux'
-import { getCurrentList, setCurrentListId } from '../../redux/currentList';
+import { setCurrentListId } from '../../redux/currentList';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';
 
 import Confetti from 'react-dom-confetti';
@@ -20,6 +19,7 @@ import history from '../../history';
 
 import './List.css';
 import { Redirect } from 'react-router-dom';
+import Utils from '../../Utils';
 
 const config = {
     angle: 90,
@@ -36,12 +36,17 @@ const config = {
 };
 
 const ListPage = (
-    { listId, shouldLoad, setShowReadOnlySnackbar, showListCompletedDialog, viewOnly, setCurrentListId } ) => {
+    { listId, displayId, lists, shouldLoad, setShowReadOnlySnackbar, showListCompletedDialog, viewOnly, setCurrentListId } ) => {
 
-    // eslint-disable-next-line
-    useEffect(() => { setCurrentListId(listId) }, [])
-
-    const list = useSelector(getCurrentList);
+    const list = listId ? Utils.findList(lists, listId) : Utils.findListByDisplayId(lists, displayId);
+    
+    useEffect(() => { 
+        // Use the listId if it exits and otherwise use the list found by the displayId
+        if (listId)
+            setCurrentListId(listId);
+        else if (list) 
+            setCurrentListId(list._id);
+    }, [listId, displayId, lists, setCurrentListId, list])
 
     useEffect(() => {
         // Load the list if in view only mode (only this list)
@@ -49,7 +54,7 @@ const ListPage = (
             // Get the list
             WebSocketConnection.send({
                 type: "get-list", 
-                listId: listId, 
+                displayListId: displayId,
                 joinSession: true 
             });
 
@@ -89,7 +94,7 @@ const ListPage = (
 
                 <InvalidPinSnackbar onClose={invalidPinOnClose} onLogin={onLogin} /> 
                     
-                { !shouldLoad && <ReadOnlySnackbar /> } 
+                { !shouldLoad && <ReadOnlySnackbar displayId={displayId} /> } 
             </>
         }
         </>

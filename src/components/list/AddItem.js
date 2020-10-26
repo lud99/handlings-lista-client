@@ -24,7 +24,7 @@ const AddItem = ({ listId,  createListItem }) => {
     return (
         <div className="add-item-container">
             <form onSubmit={event => addItem(event)}>
-                <Input placeholder="Föremål" value={inputValue} onChange={event => setInputValue(event.target.value)} ref={input} />
+                <Input placeholder="Skriv din vara här" value={inputValue} onChange={event => setInputValue(event.target.value)} ref={input} />
 
                 <Button variant="contained" className="button button-small" onClick={() => addItem()}>
                     Lägg till

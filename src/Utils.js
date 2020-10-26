@@ -44,6 +44,7 @@ class Utils {
     }
 
     static findList = (lists, listId) => lists && lists.find(list => list._id === listId)
+    static findListByDisplayId = (lists, listDisplayId) => lists && lists.find(list => list.displayId === listDisplayId)
     static findItem = (items, itemId) => items && items.find(item => item._id === itemId)
 }
 

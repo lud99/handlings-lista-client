@@ -9,7 +9,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import history from '../history';
 import WebSocketConnection from '../WebSocketConnection';
 
-const ReadOnlySnackbar = ({ isOpen, setOpen, setShowInvalidPinSnackbar, listId }) => {
+const ReadOnlySnackbar = ({ isOpen, setOpen, setShowInvalidPinSnackbar, setShowReadOnlySnackbar, displayId }) => {
     const handleClose = (event, reason) => {
         if (reason === 'clickaway')
             return;
@@ -26,7 +26,8 @@ const ReadOnlySnackbar = ({ isOpen, setOpen, setShowInvalidPinSnackbar, listId }
         if (pin) 
             WebSocketConnection.login(pin, ({ success }) => {
                 if (success) {
-                    history.push(`/list/${listId}`)
+                    history.push(`/list/${displayId}`);
+                    setShowReadOnlySnackbar(false);
                 } else { 
                     setOpen(false);
                     setShowInvalidPinSnackbar(true);
@@ -57,6 +58,6 @@ const mapStateToProps = state => ({
     isOpen: state.showReadOnlySnackbar,
 });
 
-const mapDispatch = { setOpen: setShowReadOnlySnackbar, setShowInvalidPinSnackbar }
+const mapDispatch = { setOpen: setShowReadOnlySnackbar, setShowInvalidPinSnackbar, setShowReadOnlySnackbar }
 
 export default connect(mapStateToProps, mapDispatch)(ReadOnlySnackbar);

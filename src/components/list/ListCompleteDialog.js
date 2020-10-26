@@ -44,7 +44,7 @@ const ListCompleteDialog = ({ setShowListCompleteDialog, setListCompleted }) => 
                 WebSocketConnection.createList({ name: list.name + " (2)", items: list.items }, ({ data }) => {
                     setShowListCompleteDialog(false);
 
-                    history.push("/list/" + data._id);
+                    history.push("/list/" + data.displayId);
                 });
             } else if (selectedAction === "clean") {
                 WebSocketConnection.removeCompletedItems({ listId: list._id }, () => setShowListCompleteDialog(false));

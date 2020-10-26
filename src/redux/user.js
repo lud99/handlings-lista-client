@@ -3,6 +3,7 @@ import { createSelector } from 'reselect'
 
 import listReducers from './reducers/listReducers';
 import listItemReducers from './reducers/listItemReducers';
+import historyListReducers from './reducers/historyListReducers';
 
 const setLocalTextInLists = (lists) => (
     lists.map(list => (
@@ -25,17 +26,16 @@ const userSlice = createSlice({
         setUserInitialState: () => initialState,
         setPin: (state, action) => ({ ...state, pin: action.payload }),
         setLoggedIn: (state, action) => ({ ...state, loggedIn: action.payload }),
+        setStats: (state, action) => ({ ...state, stats: action.payload }),
         logout: (state, action) => {
             localStorage.removeItem("pin");
 
             return { ...initialState, pin: null }
         },
 
-        // List
         ...listReducers,
-
-        // List items
-        ...listItemReducers
+        ...listItemReducers,
+        ...historyListReducers
     }
 });
 
@@ -52,7 +52,7 @@ export const makeGetListItemFromId = () => {
 }
 
 // User
-export const { setUserInitialState, setUser, setPin, setLoggedIn, logout } = userSlice.actions;
+export const { setUserInitialState, setUser, setPin, setLoggedIn, setStats, logout } = userSlice.actions;
 
 // Lists
 export const { setLists, addList, createList, removeList, renameList, setListCompleted, removeCompletedItems } = userSlice.actions;

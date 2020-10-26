@@ -5,12 +5,13 @@ import Utils from './Utils';
 import { 
     setUserInitialState, setUser, setPin, setLoggedIn,
     setLists, addList, removeList, renameList, setListCompleted,
-    addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal, removeCompletedItems } from './redux/user';
+    addListItem, toggleListItemCompleted, renameListItem, removeListItem, reorderListItems, renameListItemLocal, removeCompletedItems, setStats } from './redux/user';
 
 import { setShouldLoad } from './redux/shouldLoad';
 import { setShowInvalidPinSnackbar } from './redux/showInvalidPinSnackbar';
 import { setOffline } from './redux/offline';
 import { setResetDrag } from './redux/resetDrag';
+import { setViewOnly } from './redux/viewOnly';
 
 class WebSocketConnection {
     static init = (url = this.url, app = this.app, store = this.store, connectionCallback = () => {}) => {
@@ -81,6 +82,7 @@ class WebSocketConnection {
             console.log("Connection closed with '%s'", url);
 
             this.dispatch(setShouldLoad(true));
+            this.dispatch(setViewOnly(false));
 
             setTimeout(() => {
             
@@ -103,11 +105,7 @@ class WebSocketConnection {
                         this.checkingConnection = false;
                     });
 
-                    this.send({ type: "get-lists", pin: user.pin }, ({ data }) => {
-
-                        // Set all the lists (and their items)
-                        this.dispatch(setLists(data.lists));
-                    });
+                    this.send({ type: "get-user", pin: user.pin });
                 } else {
                     this.checkingConnection = false;
                 }
@@ -179,13 +177,6 @@ class WebSocketConnection {
 
                 break;
             }
-            case "get-user": {
-                // Set the user (and all their lists and items) and pin
-                this.dispatch(setUser(message.data));
-             
-                break;
-            }
-
             case "get-list": {
                 // Get message callback
                 const callback = this.getMessageCallback(message.callbackId);
@@ -202,11 +193,11 @@ class WebSocketConnection {
 
                 break;
             }
-            case "get-lists": {
+            case "get-user": {
                 // Get message callback
                 const callback = this.getMessageCallback(message.callbackId);
 
-                // Set the user (and all their lists and items) and pin
+                // Set the user
                 this.dispatch(setUser(message.data))
 
                 // Run the callback
@@ -362,6 +353,14 @@ class WebSocketConnection {
                 this.dispatch(renameListItem({ ...message.data, localOnly: true }))
 
                 this.blurActiveElementManual(document.getElementById(message.data._id)); // Remove the focus without renaming it
+
+                break;
+            }
+
+            case "stats-broadcast": {
+                if (!message.success) return;
+
+                this.dispatch(setStats(message.data));
 
                 break;
             }

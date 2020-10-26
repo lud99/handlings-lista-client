@@ -93,6 +93,8 @@ const reducers = {
 
         // Toggle the completed state if no completed value is specified, but otherwise use the specified value to avoid 'double toggling'
         item.completed = action.payload.completed === undefined ? !item.completed : action.payload.completed;
+        item.completedAt = action.payload.completedAt;
+        item.completedOnce = action.payload.completedOnce;
     },
     reorderListItems: (state, { payload }) => {
         const list = Utils.findList(state.lists, payload.listId);

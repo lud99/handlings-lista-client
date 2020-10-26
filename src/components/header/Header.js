@@ -67,7 +67,7 @@ const Header = (props) => {
         setShowReadOnlySnackbar(true);
     }
 
-    const completeList = () => setShowListCompleteDialog(true);
+    const completeList = () => !list.completed && setShowListCompleteDialog(true);
 
     const titleFormatted = Utils.capitalize(list ? list.name : title);
 
@@ -82,7 +82,7 @@ const Header = (props) => {
 
                 { (!viewOnly && useEditButton) && 
                     <>
-                        { useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list.completed)} /> }
+                        { useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list && list.completed)} /> }
 
                         <IconButton edge="end" className="editButton" color="inherit" aria-label="edit" style={styles.editButton(editMode)} onClick={toggleEditMode}>
                             <EditIcon />

@@ -49,7 +49,7 @@ const Home = (props) => {
             <MaterialUIList className="list" component="div"> 
                 { lists && (lists.length === 0 ?
                 // No lists
-                <p className="noLists">Klicka på plusset för att skapa din första lista</p> : 
+                <p className="noLists">Klicka på plusset för att skapa er första lista</p> : 
                         
                 // Lists
                 lists.map(list => <List list={list} key={list._id} editMode={editMode} />)) }

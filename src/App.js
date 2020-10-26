@@ -86,26 +86,32 @@ class App extends Component {
                         return <HomePage />
                     }} />
                     
-                    <Route path="/list/:id" exact render={(context) => {
+                    <Route path="/list/:displayId" exact render={(context) => {
                         this.connect();
 
-                        const listId = context.match.params.id;
+                        const lists = this.store.getState().user.lists;
+
+                        const displayId = context.match.params.displayId;
+                        const listId = lists && Utils.findListByDisplayId(lists, displayId)._id;
 
                         this.store.dispatch(setViewOnly(false));
                         this.store.dispatch(setCurrentListId(listId));
 
-                        return <ListPage listId={listId} />
+                        return <ListPage listId={listId} displayId={displayId} />
                     }}>
                     </Route>
 
-                    <Route path="/view/:id" exact render={(context) => {
+                    <Route path="/list/:displayId/view" exact render={(context) => {
                         this.connect();
 
-                        const listId = context.match.params.id;
+                        const lists = this.store.getState().user.lists;
+
+                        const displayId = context.match.params.displayId;
+                        const listId = lists && Utils.findListByDisplayId(lists, displayId)._id;
 
                         this.store.dispatch(setViewOnly(true));
 
-                        return <ListPage listId={listId} />
+                        return <ListPage listId={listId} displayId={displayId} />
                     }}>
                     </Route>
 

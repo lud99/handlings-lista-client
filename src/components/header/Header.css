@@ -55,15 +55,49 @@ header .editButton {
     transition: color 0.25s;
 }
 
+header .editButton:hover {
+    color: rgb(195, 33, 96) !important;
+}
+
+header .editButton svg { color: inherit; }
+
 header .listCompleted {
     padding: 10px;
+
+    transition: color 0.25s;
+}
+
+header .listCompleted:hover {
+    color: #2ba02f !important;
 }
 
 header .listCompleted svg {
     width: 1.25em;
     height: 1.25em;
+    color: inherit;
 }
 
 header .readOnly {
     margin-right: 0px;
+}
+
+@media only screen and (max-width: 400px) {
+    header .title {
+        font-size: 1.125rem;
+    }
+
+    header .listCompleted svg {
+        width: 1.1em;
+        height: 1.1em;
+    }
+
+    header .readOnly svg {
+        width: 0.9em;
+        height: 0.9em;
+    }
+
+    header .editButton svg {
+        width: 0.9em;
+        height: 0.9em;
+    }
 }

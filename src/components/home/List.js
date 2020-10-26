@@ -21,7 +21,7 @@ const List = ({ list, editMode, removeList }) => {
     if (date.getYear() === today.getYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate() - 1)
         dateText = "Igår";
 
-    const openList = () => history.push(`/list/${list._id}`);
+    const openList = () => history.push(`/list/${list.displayId}`);
 
     return (          
         <>      
