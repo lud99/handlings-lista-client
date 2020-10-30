@@ -87,7 +87,7 @@ const ListPage = (
             { list &&
             
             <>
-                <Header useEditButton={true} useRenameList={true} useListDone={true} />
+                <Header useEditButton={true} useRenameList={true} useListCompletedButton={true} />
                 <List />
 
                 { !viewOnly && <AddItem /> }

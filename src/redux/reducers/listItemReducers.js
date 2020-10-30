@@ -99,7 +99,7 @@ const reducers = {
     reorderListItems: (state, { payload }) => {
         const list = Utils.findList(state.lists, payload.listId);
 
-        if (JSON.stringify(list.items) === JSON.stringify(payload.reorderedItems))
+        if (JSON.stringify(list.items) === JSON.stringify(payload.reorderedItems))  // Prevent unecessary updates
             return state;
 
         if (!payload.localOnly) {
@@ -115,6 +115,31 @@ const reducers = {
         // Set the items directly
         if (payload.reorderedItems)
             list.items = payload.reorderedItems;
+        
+        // All the ids for the list items are received, not item objects.
+        // So it maps over all item ids, where it returns the found object with the same id
+        if (payload.itemIds) 
+            list.items = payload.itemIds.map(itemId => Utils.findItem(list.items, itemId));
+    },
+
+    sortListItems: (state, { payload }) => {
+        const list = Utils.findList(state.lists, payload.listId);
+
+        if (JSON.stringify(list.items) === JSON.stringify(payload.sortedItems)) // Prevent unecessary updates
+            return state;
+
+        if (!payload.localOnly) {
+            WebSocketConnection.send({
+                type: "sort-list-items",
+                pin: state.pin,
+                listId: payload.listId,
+                sortOrder: payload.sortOrder
+            }); 
+        }
+
+        // Set the items directly
+        if (payload.sortedItems)
+            list.items = payload.sortedItems;
         
         // All the ids for the list items are received, not item objects.
         // So it maps over all item ids, where it returns the found object with the same id

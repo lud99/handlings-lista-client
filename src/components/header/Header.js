@@ -17,7 +17,6 @@ import history from '../../history';
 import Utils from '../../Utils';
 import Title from './Title';
 import ActionsMenu from './ActionsMenu';
-import ListCompletedButton from './ListCompletedButton';
 
 import './Header.css';
 
@@ -26,7 +25,8 @@ const Header = (props) => {
         title,
         useEditButton, 
         useRenameList,
-        useListDone,
+        useListCompletedButton,
+        useSortButton,
         editMode, 
         toggleEditMode, 
         setShowReadOnlySnackbar, 
@@ -34,8 +34,6 @@ const Header = (props) => {
         setShowListCompleteDialog,
         setEditMode,
         viewOnly } = props;
-
-    const [latestButtonUsed, setLatestButtonUsed] = useState("edit");
 
     const list = useSelector(getCurrentList);
 
@@ -85,31 +83,40 @@ const Header = (props) => {
 
                 { (!viewOnly && useEditButton) && 
                     <>
+                    <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
                     {
-                        (function() {
+                        /*(function() {
                             switch (latestButtonUsed) {
-                                case "edit": return (
-                                    <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
-                                );
-                                case "completed": return (
-                                    <ListCompletedButton 
-                                        onClick={completeList} style={styles.listCompletedButton(list && list.completed)} />
-                                );
+                                case "edit": 
+                                    return (
+                                        <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
+                                    );
+
+                                case "completed": 
+                                    return (
+                                        <ListCompletedButton 
+                                            onClick={completeList} style={styles.listCompletedButton(list && list.completed)} />
+                                    );
+
+                                case "sort": 
+                                    return (
+                                        <SortButton />
+                                    );
+
+                                default: 
+                                    return (
+                                        <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
+                                    ); 
                             }
-
-                            return;
-                        })()
+                        })()*/
                     }
-                        { /*useListDone && <ListCompletedButton onClick={completeList} style={styles.listCompletedButton(list && list.completed)} /> */}
-
-                        
                     </>
                  }
 
                 <ActionsMenu 
                     useEditButton={useEditButton} 
-                    useListDone={useListDone} 
-                    setLatestButtonUsed={setLatestButtonUsed} />
+                    useListCompletedButton={useListCompletedButton}
+                    useSortButton={useSortButton}  />
 
                 { viewOnly &&
                     <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={openReadOnlySnackbar}>
@@ -124,6 +131,9 @@ const Header = (props) => {
 
 Header.defaultProps = {
     useRenameList: false,
+    useEditButton: true,
+    useListCompletedButton: false,
+    useSortButton: true,
 }
 
 const EditButton = ({ editMode, toggleEditMode }) => {
@@ -151,10 +161,6 @@ const EditButton = ({ editMode, toggleEditMode }) => {
             <EditIcon />
         </IconButton> 
     );
-}
-
-const styles = {
-    listCompletedButton: (completed) => ({ color: completed ? "#2ba02f" : "#fff"})
 }
 
 const mapStateToProps = state => ({

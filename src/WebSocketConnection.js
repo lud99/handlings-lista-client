@@ -346,6 +346,31 @@ class WebSocketConnection {
             
                 break;
             }
+            case "sort-list-items": {
+                const lists = this.getState().user.lists;
+
+                const activeItemId = document.activeElement ? document.activeElement.id : null;
+
+                const list = Utils.findList(lists, message.data._id);
+                const item = Utils.findItem(list.items, activeItemId) || {};
+
+                // Only reorder the items locally
+                this.dispatch(reorderListItems({ itemIds: message.data.items, listId: message.data._id, localOnly: true }));
+
+                const itemLocalText = item.localText;
+                const activeElement = document.getElementById(activeItemId);
+
+                // Return if no item was in focus
+                if (!activeElement || !itemLocalText) return;
+                
+                // Focus on the previously focused item
+                activeElement.focus();
+                
+                // Set the local text to the previous local text
+                this.dispatch(renameListItemLocal({ _id: activeItemId, listId: message.data._id, localText: itemLocalText }))
+            
+                break;
+            }
             case "rename-list-item": {
                 if (!message.success) return;
 

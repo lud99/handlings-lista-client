@@ -3,14 +3,13 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux'
 import { useSelector } from 'react-redux'
 
-import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import { setListCompleted } from '../../redux/user';
-import { toggleEditMode, setEditMode } from '../../redux/editMode';
+import { toggleEditMode } from '../../redux/editMode';
 import { getCurrentList } from '../../redux/currentList';
 import { setShowListCompleteDialog } from '../../redux/showListCompleteDialog';
 
@@ -19,9 +18,10 @@ import { IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
-import SortIcon from '@material-ui/icons/Sort';
 
-const ActionsMenu = ({ useEditButton, useListDone, setLatestButtonUsed, toggleEditMode, setEditMode, setShowListCompleteDialog }) => {
+import SortMenu from './SortMenu';
+
+const ActionsMenu = ({ useEditButton, useListCompletedButton, useSortButton, setLatestButtonUsed, toggleEditMode, setShowListCompleteDialog }) => {
     const [anchorElement, setAnchorElement] = useState(null);
 
     const list = useSelector(getCurrentList);
@@ -33,8 +33,7 @@ const ActionsMenu = ({ useEditButton, useListDone, setLatestButtonUsed, toggleEd
     const completeList = () => {
         close();
 
-        setLatestButtonUsed("completed");
-        setEditMode(false);
+        //setLatestButtonUsed("completed");
 
         if (!list.completed) setShowListCompleteDialog(true);
     }
@@ -42,14 +41,16 @@ const ActionsMenu = ({ useEditButton, useListDone, setLatestButtonUsed, toggleEd
     const editButtonHandleClick = () => {
         close();
 
-        setLatestButtonUsed("edit");
+        //setLatestButtonUsed("edit");
 
         toggleEditMode();
     }
 
+    const sortMenuHandleClick = () => {};//setLatestButtonUsed("sort");
+
     return (
         <div>
-            <IconButton onClick={handleClick}>
+            <IconButton onClick={handleClick} color="inherit">
                 <MenuIcon />
             </IconButton>
 
@@ -61,8 +62,9 @@ const ActionsMenu = ({ useEditButton, useListDone, setLatestButtonUsed, toggleEd
                 onClose={close}
             >
                 { useEditButton && <EditItem onClick={editButtonHandleClick} /> }
-                { useListDone && <ListCompletedItem onClick={completeList} /> }
-                <SortItem />
+                { useListCompletedButton && <ListCompletedItem onClick={completeList} /> }
+                { useSortButton && <SortMenu onOpenClick={sortMenuHandleClick} onSortTypeClick={close} /> }
+
             </Menu>
         </div>
     );
@@ -90,17 +92,6 @@ const ListCompletedItem = ({ onClick }) => {
     );
 }
 
-const SortItem = ({ onClick }) => {
-    return (
-        <MenuItem className="actionsMenuItem">
-            <ListItemIcon className="menuIcon menuSortButton" style={{ color: "#218cf2" }}>
-                <SortIcon />
-            </ListItemIcon>
-            <ListItemText primary="Sortera"></ListItemText>
-        </MenuItem>
-    );
-}
-
 const mapStateToProps = state => ({
     editMode: state.editMode
 })
@@ -108,8 +99,7 @@ const mapStateToProps = state => ({
 const mapDispatch = { 
     toggleEditMode: () => toggleEditMode(), 
     setShowListCompleteDialog,
-    setListCompleted,
-    setEditMode
+    setListCompleted
 };
 
 export default connect(mapStateToProps, mapDispatch)(ActionsMenu);

@@ -3,13 +3,14 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { ListItem, ListItemText, Divider } from '@material-ui/core';
 import { removeList } from '../../redux/user';
+import { setEditMode } from '../../redux/editMode';
 
 import Delete from '../Delete';
 import ListItemsPreview from './ListItemsPreview';
 import Utils from '../../Utils';
 import history from '../../history';
 
-const List = ({ list, editMode, removeList }) => {
+const List = ({ list, editMode, removeList, setEditMode }) => {
     const date = new Date(list.createdAt);
     const today = new Date();
 
@@ -21,7 +22,12 @@ const List = ({ list, editMode, removeList }) => {
     if (date.getYear() === today.getYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate() - 1)
         dateText = "Igår";
 
-    const openList = () => history.push(`/list/${list.displayId}`);
+    const openList = () => {
+        // Disable edit mode
+        setEditMode(false);
+
+        history.push(`/list/${list.displayId}`);
+    }
 
     return (          
         <>      
@@ -65,6 +71,6 @@ const mapStateToProps = state => ({
     pin: state.user.pin
 })
 
-const mapDispatch = { removeList };
+const mapDispatch = { removeList, setEditMode };
 
 export default connect(mapStateToProps, mapDispatch)(List);

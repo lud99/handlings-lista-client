@@ -61,6 +61,6 @@ export const { setLists, addList, createList, removeList, renameList, setListCom
 export const { 
     setListItems, addListItem, createListItem, removeListItem, 
     toggleListItemCompleted, renameListItem, renameListItemLocal, 
-    reorderListItems } = userSlice.actions;
+    reorderListItems, sortListItems } = userSlice.actions;
 
 export default userSlice.reducer;
