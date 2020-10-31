@@ -34,7 +34,7 @@ const SortMenu = ({ onOpenClick, onSortTypeClick, sortListItems }) => {
         sortListItems({ 
             listId: list._id,
             sortOrder: sortOrder,
-            //sortedItems: sortedItems
+            sortedItems: sortedItems
         });
 
         close();
@@ -51,17 +51,11 @@ const SortMenu = ({ onOpenClick, onSortTypeClick, sortListItems }) => {
                 <ListItemText primary="Sortera"></ListItemText>
             </MenuItem>
 
-            <Menu
-                id="actions-menu"
-                anchorEl={anchorElement}
-                
-                open={Boolean(anchorElement)}
-                onClose={close}
-            >
+            <Menu anchorEl={anchorElement} open={Boolean(anchorElement)} onClose={close}>
                 <SortTypeItem onClick={() => reorder("completed")} text={"Inköpta längst ner"} />
                 <SortTypeItem onClick={() => reorder("-completed")} text={"Inköpta högst upp"} />
-                <SortTypeItem onClick={() => reorder("text")} text={"Namn A-Ö"} />
-                <SortTypeItem onClick={() => reorder("-text")}  text={"Namn Ö-A"} />
+                <SortTypeItem onClick={() => reorder("-createdAt")} text={"Nyast högst upp"} />
+                <SortTypeItem onClick={() => reorder("createdAt")}  text={"Nyast längst ner"} />
             </Menu>
         </div>
     );
