@@ -31,7 +31,6 @@ const Header = (props) => {
         toggleEditMode, 
         setShowReadOnlySnackbar, 
         setShowInvalidPinSnackbar,
-        setShowListCompleteDialog,
         setEditMode,
         viewOnly } = props;
 
@@ -68,7 +67,7 @@ const Header = (props) => {
         setShowReadOnlySnackbar(true);
     }
 
-    const completeList = () => !list.completed && setShowListCompleteDialog(true);
+    //const completeList = () => !list.completed && setShowListCompleteDialog(true);
 
     const titleFormatted = Utils.capitalize(list ? list.name : title);
 

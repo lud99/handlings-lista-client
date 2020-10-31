@@ -15,7 +15,7 @@ import SortIcon from '@material-ui/icons/Sort';
 
 import Utils from '../../Utils';
 
-const SortMenu = ({ onOpenClick, onSortTypeClick, sortListItems }) => {
+const SortMenu = ({ lists, onOpenClick, onSortTypeClick, onClose, sortListItems }) => {
     const [anchorElement, setAnchorElement] = useState(null);
 
     const list = useSelector(getCurrentList);
@@ -23,23 +23,29 @@ const SortMenu = ({ onOpenClick, onSortTypeClick, sortListItems }) => {
     const handleClick = (event) => {
         setAnchorElement(event.currentTarget);
 
-        onOpenClick(event);
+        if (onOpenClick) onOpenClick(event);
     }
 
-    const close = () => setAnchorElement(null);
+    const handleClose = () => {
+        setAnchorElement(null);
+        onClose();
+    }
 
     const reorder = (sortOrder) => {
-        const sortedItems = list.items.slice().sort(Utils.sortByProperty(sortOrder));
+        // Sort list items
+        if (list) {
+            const sortedItems = list.items.slice().sort(Utils.sortByProperty(sortOrder)); // Sort by property
 
-        sortListItems({ 
-            listId: list._id,
-            sortOrder: sortOrder,
-            sortedItems: sortedItems
-        });
+            sortListItems({ 
+                listId: list._id,
+                sortOrder: sortOrder,
+                sortedItems: sortedItems
+            });
+        }
 
-        close();
+        setAnchorElement(null);
 
-        onSortTypeClick();
+        if (onSortTypeClick) onSortTypeClick();
     }
 
     return (
@@ -51,7 +57,7 @@ const SortMenu = ({ onOpenClick, onSortTypeClick, sortListItems }) => {
                 <ListItemText primary="Sortera"></ListItemText>
             </MenuItem>
 
-            <Menu anchorEl={anchorElement} open={Boolean(anchorElement)} onClose={close}>
+            <Menu anchorEl={anchorElement} open={Boolean(anchorElement)} onClose={handleClose} transitionDuration={150}>
                 <SortTypeItem onClick={() => reorder("completed")} text={"Inköpta längst ner"} />
                 <SortTypeItem onClick={() => reorder("-completed")} text={"Inköpta högst upp"} />
                 <SortTypeItem onClick={() => reorder("-createdAt")} text={"Nyast högst upp"} />
@@ -61,15 +67,15 @@ const SortMenu = ({ onOpenClick, onSortTypeClick, sortListItems }) => {
     );
 }
 
-const SortTypeItem = ({ text, onClick }) => {
+const SortTypeItem = React.forwardRef(({ text, onClick }, ref) => {
     return (
         <MenuItem className="actionsMenuItem" onClick={onClick}>
             <ListItemText className="menuSortType" primary={text}></ListItemText>
         </MenuItem>
     );
-}
+});
 
-const mapStateToProps = state => ({  })
+const mapStateToProps = state => ({ lists: state.user.lists })
 
 const mapDispatch = { sortListItems };
 

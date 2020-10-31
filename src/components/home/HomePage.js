@@ -42,7 +42,7 @@ const Home = (props) => {
         <>
             { (!lists || shouldLoad) && <LoadingBackdrop isEnabled={true} /> }
 
-            <Header title="Listor" useEditButton={true} />
+            <Header title="Listor" useEditButton={true} useSortButton={false} />
 
             { createListDialogOpen && <CreateListDialog setOpen={setCreateListDialogOpen} /> }
 

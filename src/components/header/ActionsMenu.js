@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 
 import { connect } from 'react-redux'
 import { useSelector } from 'react-redux'
@@ -21,7 +21,13 @@ import DoneIcon from '@material-ui/icons/Done';
 
 import SortMenu from './SortMenu';
 
-const ActionsMenu = ({ useEditButton, useListCompletedButton, useSortButton, setLatestButtonUsed, toggleEditMode, setShowListCompleteDialog }) => {
+const ActionsMenu = ({ 
+    useEditButton, 
+    useListCompletedButton, 
+    useSortButton, 
+    toggleEditMode, 
+    setShowListCompleteDialog }) => {
+        
     const [anchorElement, setAnchorElement] = useState(null);
 
     const list = useSelector(getCurrentList);
@@ -46,7 +52,7 @@ const ActionsMenu = ({ useEditButton, useListCompletedButton, useSortButton, set
         toggleEditMode();
     }
 
-    const sortMenuHandleClick = () => {};//setLatestButtonUsed("sort");
+    const sortMenuHandleClose = () => close();
 
     return (
         <div>
@@ -60,17 +66,19 @@ const ActionsMenu = ({ useEditButton, useListCompletedButton, useSortButton, set
                 
                 open={Boolean(anchorElement)}
                 onClose={close}
+
+                transitionDuration={150}
             >
                 { useEditButton && <EditItem onClick={editButtonHandleClick} /> }
                 { useListCompletedButton && <ListCompletedItem onClick={completeList} /> }
-                { useSortButton && <SortMenu onOpenClick={sortMenuHandleClick} onSortTypeClick={close} /> }
+                { useSortButton && <SortMenu onSortTypeClick={close} onClose={sortMenuHandleClose} /> }
 
             </Menu>
         </div>
     );
 }
 
-const EditItem = ({ onClick }) => {
+const EditItem = forwardRef(({ onClick }, ref) => {
     return (
         <MenuItem className="actionsMenuItem" onClick={onClick}>
             <ListItemIcon className="menuIcon menuEditButton" style={{ color: "#c32160" }}>
@@ -79,7 +87,7 @@ const EditItem = ({ onClick }) => {
             <ListItemText primary="Redigera"></ListItemText>
         </MenuItem>
     );
-}
+});
 
 const ListCompletedItem = ({ onClick }) => {
     return (
