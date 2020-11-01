@@ -17,6 +17,8 @@ import history from '../../history';
 import Utils from '../../Utils';
 import Title from './Title';
 import ActionsMenu from './ActionsMenu';
+import ListCompletedButton from './ListCompletedButton'
+import AccountDialog from '../accountDialog/AccountDialog';
 
 import './Header.css';
 
@@ -67,64 +69,46 @@ const Header = (props) => {
         setShowReadOnlySnackbar(true);
     }
 
-    //const completeList = () => !list.completed && setShowListCompleteDialog(true);
-
     const titleFormatted = Utils.capitalize(list ? list.name : title);
 
     return (
-        <AppBar position="static">
-            <Toolbar>
-                { !viewOnly && <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
-                    <BackIcon />
-                </IconButton> }
+        <>
+            <AppBar position="static">
+                <Toolbar>
+                    { !viewOnly && <IconButton edge="start" className="backButton" color="inherit" aria-label="back" onClick={back}>
+                        <BackIcon />
+                    </IconButton> }
 
-                <Title titleFormatted={titleFormatted} editMode={editMode} useRenameList={useRenameList} />
+                    <Title titleFormatted={titleFormatted} editMode={editMode} useRenameList={useRenameList} />
 
-                { (!viewOnly && useEditButton) && 
-                    <>
-                    <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
-                    {
-                        /*(function() {
-                            switch (latestButtonUsed) {
-                                case "edit": 
-                                    return (
-                                        <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
-                                    );
-
-                                case "completed": 
-                                    return (
-                                        <ListCompletedButton 
-                                            onClick={completeList} style={styles.listCompletedButton(list && list.completed)} />
-                                    );
-
-                                case "sort": 
-                                    return (
-                                        <SortButton />
-                                    );
-
-                                default: 
-                                    return (
-                                        <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
-                                    ); 
-                            }
-                        })()*/
+                    { (!viewOnly && useEditButton) && 
+                        <>
+                        
+                        {
+                            (list && list.completed) ? 
+                            
+                            <ListCompletedButton style={{ color: "rgb(43, 160, 47)" }} />
+                            : 
+                            <EditButton editMode={editMode} toggleEditMode={toggleEditMode} />
+                        }
+                        </>
                     }
-                    </>
-                 }
 
-                <ActionsMenu 
-                    useEditButton={useEditButton} 
-                    useListCompletedButton={useListCompletedButton}
-                    useSortButton={useSortButton}  />
+                    <ActionsMenu 
+                        useEditButton={(list && list.completed) ? false : useEditButton} 
+                        useListCompletedButton={(list && list.completed) ? false : useListCompletedButton}
+                        useSortButton={(list && list.completed) ? false : useSortButton} />
 
-                { viewOnly &&
-                    <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={openReadOnlySnackbar}>
-                        <LockIcon />
-                    </IconButton> 
-                
-                }
-            </Toolbar>
-        </AppBar>
+                    { viewOnly &&
+                        <IconButton edge="end" className="readOnly" color="inherit" aria-label="read-only" onClick={openReadOnlySnackbar}>
+                            <LockIcon />
+                        </IconButton> 
+                    
+                    }
+                </Toolbar>
+            </AppBar>
+            { <AccountDialog /> }
+        </>
     )
 }
 

@@ -12,12 +12,14 @@ import { setListCompleted } from '../../redux/user';
 import { toggleEditMode } from '../../redux/editMode';
 import { getCurrentList } from '../../redux/currentList';
 import { setShowListCompleteDialog } from '../../redux/showListCompleteDialog';
+import { setShowChangeAccountDialog } from '../../redux/basic/showAccountDialog';
 
 import { IconButton } from '@material-ui/core';
 
 import MenuIcon from '@material-ui/icons/Menu';
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import SortMenu from './SortMenu';
 
@@ -26,7 +28,8 @@ const ActionsMenu = ({
     useListCompletedButton, 
     useSortButton, 
     toggleEditMode, 
-    setShowListCompleteDialog }) => {
+    setShowListCompleteDialog,
+    setShowChangeAccountDialog }) => {
         
     const [anchorElement, setAnchorElement] = useState(null);
 
@@ -39,17 +42,18 @@ const ActionsMenu = ({
     const completeList = () => {
         close();
 
-        //setLatestButtonUsed("completed");
-
         if (!list.completed) setShowListCompleteDialog(true);
     }
 
     const editButtonHandleClick = () => {
         close();
 
-        //setLatestButtonUsed("edit");
-
         toggleEditMode();
+    }
+
+    const accountButtonHandleClick = () => {
+        setShowChangeAccountDialog(true);
+        close();
     }
 
     const sortMenuHandleClose = () => close();
@@ -72,7 +76,7 @@ const ActionsMenu = ({
                 { useEditButton && <EditItem onClick={editButtonHandleClick} /> }
                 { useListCompletedButton && <ListCompletedItem onClick={completeList} /> }
                 { useSortButton && <SortMenu onSortTypeClick={close} onClose={sortMenuHandleClose} /> }
-
+                { <AccountItem onClick={accountButtonHandleClick} /> }
             </Menu>
         </div>
     );
@@ -89,7 +93,7 @@ const EditItem = forwardRef(({ onClick }, ref) => {
     );
 });
 
-const ListCompletedItem = ({ onClick }) => {
+const ListCompletedItem = forwardRef(({ onClick }, ref) => {
     return (
         <MenuItem className="actionsMenuItem" onClick={onClick}>
             <ListItemIcon className="menuIcon menuCompletedButton" style={{ color: "#2ba02f" }}>
@@ -98,7 +102,18 @@ const ListCompletedItem = ({ onClick }) => {
             <ListItemText primary="Handlat färdigt"></ListItemText>
         </MenuItem>
     );
-}
+});
+
+const AccountItem = forwardRef(({ onClick }, ref) => {
+    return (
+        <MenuItem className="actionsMenuItem" onClick={onClick}>
+            <ListItemIcon className="menuIcon menuAccountButton">
+                <AccountCircleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Byt konto"></ListItemText>
+        </MenuItem>
+    );
+});
 
 const mapStateToProps = state => ({
     editMode: state.editMode
@@ -107,7 +122,8 @@ const mapStateToProps = state => ({
 const mapDispatch = { 
     toggleEditMode: () => toggleEditMode(), 
     setShowListCompleteDialog,
-    setListCompleted
+    setListCompleted,
+    setShowChangeAccountDialog
 };
 
 export default connect(mapStateToProps, mapDispatch)(ActionsMenu);

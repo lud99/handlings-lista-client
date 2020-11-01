@@ -5,6 +5,8 @@ import { connect } from 'react-redux'
 import { List as MaterialUIList, Fab } from '@material-ui/core';
 
 import { setCurrentListId } from '../../redux/currentList';
+import { addAccount } from '../../redux/accounts';
+import { setShowManageAccountsDialog } from '../../redux/basic/showAccountDialog';
 
 import AddIcon from '@material-ui/icons/Add';
 import Header from '../header/Header';
@@ -12,25 +14,33 @@ import LoadingBackdrop from '../LoadingBackdrop';
 import WebSocketConnection from '../../WebSocketConnection';
 import List from './List';
 import CreateListDialog from './CreateListDialog';
+import InvalidPinSnackbar from '../InvalidPinSnackbar';
 
 import './Home.css';
 import history from '../../history';
 
 const Home = (props) => {
-    const { lists, shouldLoad, editMode, setCurrentListId } = props;
+    const { lists, accounts, shouldLoad, editMode, setCurrentListId, setShowManageAccountsDialog, addAccount } = props;
 
     const [createListDialogOpen, setCreateListDialogOpen] = useState(false);
 
     useEffect(() => { 
         setCurrentListId(null);
 
-        if (!localStorage.getItem("pin")) {
+        const pin = localStorage.getItem("pin");
+
+        if (!pin) {
             history.replace("/login");
         } else {
             // Create a new pin if the stored pin is invalid
-            WebSocketConnection.login(localStorage.getItem("pin"), ({ success }) => {
-                if (!success) 
+            WebSocketConnection.login(pin, ({ success }) => {
+                if (success) {
+                    if (accounts.length === 0)
+                        addAccount({ pin, comment: "Jag" });
+                        localStorage.setItem("accounts", JSON.stringify(accounts));
+                } else {
                     WebSocketConnection.resetStoredUser();
+                }
             }); 
         }
         // eslint-disable-next-line
@@ -41,6 +51,11 @@ const Home = (props) => {
     return (
         <>
             { (!lists || shouldLoad) && <LoadingBackdrop isEnabled={true} /> }
+
+            <InvalidPinSnackbar 
+                message="Ett konto med den pinkoden finns inte" 
+                buttonText="Hantera Konton" 
+                onClick={(event, setOpen) => { setShowManageAccountsDialog(true); setOpen(false); }} />
 
             <Header title="Listor" useEditButton={true} useSortButton={false} />
 
@@ -67,8 +82,9 @@ const mapStateToProps = state => ({
     lists: state.user.lists,
     shouldLoad: state.shouldLoad,
     editMode: state.editMode,
+    accounts: state.accounts
 })
 
-const mapDispatch = { setCurrentListId };
+const mapDispatch = { setCurrentListId, addAccount, setShowManageAccountsDialog };
 
 export default connect(mapStateToProps, mapDispatch)(Home);

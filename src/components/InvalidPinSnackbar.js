@@ -11,7 +11,7 @@ import WebSocketConnection from '../WebSocketConnection';
 
 import { setShowInvalidPinSnackbar as setOpen } from '../redux/showInvalidPinSnackbar'
 
-const InvalidPinSnackbar = ({ isOpen, setOpen, onClose, onLogin = ({ success }) => success && history.push("/home")}) => {
+const InvalidPinSnackbar = ({ message, buttonText, onClick, isOpen, setOpen, onClose, onLogin = ({ success }) => success && history.push("/home")}) => {
     const handleClose = (event, reason) => {
         if (reason === 'clickaway')
             return;
@@ -24,6 +24,8 @@ const InvalidPinSnackbar = ({ isOpen, setOpen, onClose, onLogin = ({ success }) 
     const loginClick = (event, reason) => {
         if (reason === 'clickaway')
             return;
+
+        if (onClick) return onClick(event, setOpen);
 
         const pin = prompt("Skriv in PIN");
 
@@ -38,10 +40,10 @@ const InvalidPinSnackbar = ({ isOpen, setOpen, onClose, onLogin = ({ success }) 
             anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
             open={isOpen}
             onClose={handleClose}
-            message="Kunde inte logga in med den angivna PIN koden"
+            message={message || "Kunde inte logga in med den angivna PIN koden"}
             action={
                 <>
-                    <Button color="secondary" size="medium" className="offlineSnackbarRetry" onClick={loginClick}>Försök igen</Button>
+                    <Button color="secondary" size="medium" className="offlineSnackbarRetry" onClick={loginClick}>{ buttonText || "Försök igen" }</Button>
                     <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
                         <CloseIcon fontSize="inherit" />
                     </IconButton>

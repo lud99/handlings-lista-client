@@ -14,7 +14,7 @@ const Delete = ({ style, onClick, enabled, className }) => {
 
     return (
         <Grow in={enabled}>
-            <IconButton edge="end" className={className} color="inherit" aria-label="delete" style={style} onClick={click}>
+            <IconButton edge="end" className={className} color="inherit" aria-label="delete" style={style || { color: "#5d5c5c" }} onClick={click}>
                 <DeleteIcon />
             </IconButton> 
         </Grow>    

@@ -2,6 +2,7 @@ import React, { useRef, forwardRef } from 'react';
 
 import { ListItem, ListItemText, Divider, IconButton } from '@material-ui/core';
 import { toggleListItemCompleted, removeListItem, makeGetListItemFromId } from '../../redux/user';
+import { getCurrentList } from '../../redux/currentList';
 import { connect } from 'react-redux'
 
 import Grow from '@material-ui/core/Grow';
@@ -15,7 +16,7 @@ import Utils from '../../Utils';
 const Item = (props) => { 
     const { _id, text, listId, completed } = props.item;
 
-    const { toggleListItemCompleted, editMode, viewOnly, snapshot, provided, removeListItem } = props;
+    const { toggleListItemCompleted, editMode, viewOnly, snapshot, provided, removeListItem, listCompleted } = props;
 
     const editIconElement = useRef();
     const nameInput = useRef();
@@ -49,9 +50,9 @@ const Item = (props) => {
                 <ListItemText primary={textFormatted} className="listItemText" /> }
 
                 { !viewOnly && <div className="editContainer">
-                    <Handle enabled={!editMode} dragHandle={dragHandleProps} /> 
-                    <ItemEdit enabled={editMode} text={textFormatted} ref={editIconElement} onClick={focusOnText} />
-                    <Delete enabled={editMode} className="listItemDelete" onClick={remove} />
+                    <Handle enabled={!editMode && !listCompleted} dragHandle={dragHandleProps} /> 
+                    <ItemEdit enabled={editMode && !listCompleted} text={textFormatted} ref={editIconElement} onClick={focusOnText} />
+                    <Delete enabled={editMode && !listCompleted} className="listItemDelete" onClick={remove} />
                 </div> }
             </ListItem>
             <Divider style={styles.divider(completed)} />
@@ -134,7 +135,8 @@ const makeMapStateToProps = () => {
     const mapStateToProps = (state, props) => ({ 
         editMode: state.editMode,
         viewOnly: state.viewOnly,
-        item: getListItemFromId(state, props)
+        item: getListItemFromId(state, props),
+        listCompleted: getCurrentList(state).completed
     });
 
     return mapStateToProps;

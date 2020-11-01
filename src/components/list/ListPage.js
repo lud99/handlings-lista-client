@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux'
 import { setCurrentListId } from '../../redux/currentList';
 import { setShowReadOnlySnackbar } from '../../redux/showReadOnlySnackbar';
+import { setShowManageAccountsDialog } from '../../redux/basic/showAccountDialog';
 
 import Confetti from 'react-dom-confetti';
 
@@ -36,7 +37,7 @@ const config = {
 };
 
 const ListPage = (
-    { listId, displayId, lists, shouldLoad, setShowReadOnlySnackbar, showListCompletedDialog, viewOnly, setCurrentListId } ) => {
+    { listId, displayId, lists, shouldLoad, setShowReadOnlySnackbar, showListCompletedDialog, viewOnly, setCurrentListId, setShowManageAccountsDialog } ) => {
 
     const list = listId ? Utils.findList(lists, listId) : Utils.findListByDisplayId(lists, displayId);
     
@@ -90,9 +91,13 @@ const ListPage = (
                 <Header useEditButton={true} useRenameList={true} useListCompletedButton={true} />
                 <List />
 
-                { !viewOnly && <AddItem /> }
+                { (!viewOnly && (list && !list.completed)) && <AddItem /> }
 
-                <InvalidPinSnackbar onClose={invalidPinOnClose} onLogin={onLogin} /> 
+                { /*<InvalidPinSnackbar onClose={invalidPinOnClose} onLogin={onLogin} /> */ }
+                <InvalidPinSnackbar 
+                    message="Ett konto med den pinkoden finns inte" 
+                    buttonText="Hantera Konton" 
+                    onClick={(event, setOpen) => { setShowManageAccountsDialog(true); setOpen(false); }} />
                     
                 { !shouldLoad && <ReadOnlySnackbar displayId={displayId} /> } 
             </>
@@ -109,6 +114,6 @@ const mapStateToProps = state => ({
     showListCompletedDialog: state.showListCompletedDialog
 });
 
-const mapDispatch = { setCurrentListId, setShowReadOnlySnackbar }
+const mapDispatch = { setCurrentListId, setShowReadOnlySnackbar, setShowManageAccountsDialog }
 
 export default connect(mapStateToProps, mapDispatch)(ListPage);

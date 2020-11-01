@@ -246,8 +246,10 @@ class WebSocketConnection {
             }
 
             // List item
-            case "create-list-item": { // TODO
+            case "create-list-item": {
                 const { lists } = this.getState().user;
+
+                if (!message.success) return;
 
                 // Find the list that the item should be added to 
                 const list = Utils.findList(lists, message.data.listId);
