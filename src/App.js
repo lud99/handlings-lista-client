@@ -43,7 +43,7 @@ class App extends Component {
     connect() {
         if (this.socket) return;
 
-        this.socket = WebSocketConnection.init(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvigdb.ml:1234/handlingslista", this, this.props.store);
+        this.socket = WebSocketConnection.init(this.dev ? "ws://192.168.0.2:8080/handlings-lista" : "wss://ludvigdb.tk:1234/handlingslista", this, this.props.store);
 
         window.socket = this.socket;
     }
